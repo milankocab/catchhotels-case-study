@@ -128,7 +128,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
       {children}
       <div
         aria-live="polite"
-        className={`pointer-events-none fixed inset-x-0 bottom-20 ${LAYER.toast} flex justify-center px-4`}
+        className={`pointer-events-none fixed inset-x-0 bottom-[calc(5rem+var(--bottom-bar,0px))] ${LAYER.toast} flex justify-center px-4`}
       >
         {toast && (
           <p className="pointer-events-auto flex max-w-md animate-rise items-start gap-3 rounded-(--radius-card) bg-cobalt-deep py-3 pr-2 pl-4 text-sm text-white shadow-lift">

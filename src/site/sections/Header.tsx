@@ -9,7 +9,8 @@ type NavItem = (typeof header.nav)[number]
 // Prototyp je v kořeni webu, logo vede na jeho začátek.
 const HOME = import.meta.env.BASE_URL
 
-export function Header() {
+/** Hlavička webu. V objednávce (minimal) jen logo, aby nic neodvádělo od dokončení. */
+export function Header({ minimal = false }: { minimal?: boolean }) {
   const { searchTab, setSearchTab, notify } = usePrototype()
   const [open, setOpen] = useState(false)
 
@@ -52,23 +53,27 @@ export function Header() {
           <Logo compact />
         </a>
 
-        <nav aria-label={header.navLabel} className="hidden lg:block">
-          <ul className="flex items-center gap-5">{links('row')}</ul>
-        </nav>
+        {!minimal && (
+          <>
+            <nav aria-label={header.navLabel} className="hidden lg:block">
+              <ul className="flex items-center gap-5">{links('row')}</ul>
+            </nav>
 
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          aria-controls="mobilni-menu"
-          aria-label={open ? header.menuClose : header.menuOpen}
-          className="flex size-11 items-center justify-center rounded-full text-cobalt hover:bg-azure-light lg:hidden"
-        >
-          {open ? <X aria-hidden size={24} /> : <Menu aria-hidden size={24} />}
-        </button>
+            <button
+              type="button"
+              onClick={() => setOpen((value) => !value)}
+              aria-expanded={open}
+              aria-controls="mobilni-menu"
+              aria-label={open ? header.menuClose : header.menuOpen}
+              className="flex size-11 items-center justify-center rounded-full text-cobalt hover:bg-azure-light lg:hidden"
+            >
+              {open ? <X aria-hidden size={24} /> : <Menu aria-hidden size={24} />}
+            </button>
+          </>
+        )}
       </div>
 
-      {open && (
+      {open && !minimal && (
         <nav
           id="mobilni-menu"
           aria-label={header.navLabel}

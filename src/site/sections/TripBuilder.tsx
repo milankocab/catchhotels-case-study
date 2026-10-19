@@ -5,10 +5,12 @@ import {
   placeholder,
   tripBuilder as copy,
   type AddonKind,
+  type StayId,
   type TripPart,
 } from '../../content-prototyp'
 import { Note } from '../components/Note'
 import { useCountUp } from '../motion'
+import { useTrip } from '../trip/state'
 import { usePrototype } from '../state'
 import { tripTotals, type Preset } from './trip'
 
@@ -103,7 +105,7 @@ function PartCard({
 
 /** Trip builder „Sestavte si cestu za benefity“ (kapitola 8.5). */
 export function TripBuilder() {
-  const { notify } = usePrototype()
+  const { startTrip } = useTrip()
   const [presetId, setPresetId] = useState<string>(copy.presets[1].id)
   const [added, setAdded] = useState<AddonKind[]>([])
   const [balanceText, setBalanceText] = useState(String(copy.defaultBalance))
@@ -231,7 +233,14 @@ export function TripBuilder() {
 
             <button
               type="button"
-              onClick={() => notify(copy.next)}
+              onClick={() =>
+                startTrip({
+                  stayId: preset.id as StayId,
+                  insurance: added.includes('insurance') ? 'basic' : null,
+                  car: added.includes('car') ? 'small' : null,
+                  balance,
+                })
+              }
               className="flex min-h-12 w-full items-center justify-center rounded-[10px] bg-coral-600 px-6 font-medium text-white shadow-cta transition hover:bg-coral-700 lg:w-auto"
             >
               {copy.cta}

@@ -211,9 +211,8 @@ export const search = {
   recentTitle: 'Stále máte zájem?',
   // Co se stane po odeslání. Další obrazovky prototypu přibudou později.
   next: {
-    stay: 'Další obrazovka prototypu, nabídka doplňků, se připravuje.',
     hotel:
-      'Ve skutečném webu se otevře detail hotelu z odkazu. Další obrazovka prototypu se připravuje.',
+      'Ve skutečném webu se otevře detail hotelu z odkazu. Prototyp přeskočí rovnou na nabídku doplňků.',
     other: placeholder.category,
   },
   sticky: { label: 'Upravit hledání', empty: 'Kam pojedete?' },
@@ -263,8 +262,6 @@ export const destinations = {
     addon: AddonKind | null
     tag: string | null
   }[],
-  next: (name: string) =>
-    `Otevře se nabídka ubytování v místě ${name}. Doporučený doplněk bude zvýrazněný, ale nezaškrtnutý. Tato obrazovka prototypu se připravuje.`,
 }
 
 // Trip builder „Sestavte si cestu za benefity“ (kapitola 8.5). Všechno jsou fiktivní ukázky.
@@ -336,7 +333,231 @@ export const tripBuilder = {
   topUp: (amount: string) => `Doplatíte ${amount}`,
   leftOver: (amount: string) => `Na benefitech vám zbude ${amount}`,
   cta: 'Naplánovat tuto cestu',
-  next: 'Otevře se nabídka doplňků s předvyplněnými položkami. Tato obrazovka prototypu se připravuje.',
+}
+
+// Obrazovka 2, nabídka doplňků po výběru ubytování (analyza-webu.md, kapitola 8.8).
+// Hotely, ceny, krytí i partneři jsou fiktivní. Ceny navazují na trip builder.
+export type StayId = 'hory' | 'more' | 'mesto' | 'alpy'
+export type InsuranceTier = 'basic' | 'standard' | 'plus'
+export type CarClass = 'small' | 'family'
+
+type Stay = {
+  name: string
+  place: string
+  photo: 'krkonose' | 'chorvatsko' | 'praha' | 'rakousko'
+  dates: string
+  nights: number
+  guests: number
+  guestsLabel: string
+  room: string
+  refundable: boolean
+  cancellation: string
+  /** Cena pobytu včetně servisního poplatku. */
+  price: number
+  fee: number
+  region: string
+  abroad: boolean
+  recommended: AddonKind | null
+  insuranceDays: number
+  insurance: Record<InsuranceTier, number>
+  carDays: number
+  carPickup: string
+  car: Record<CarClass, number>
+  /** Ve městě je nabídka auta sbalená do jednoho řádku. */
+  carCollapsed: boolean
+}
+
+export const offer = {
+  steps: ['Ubytování', 'Doplňky', 'Košík a platba', 'Hotovo'],
+  stepsLabel: 'Postup objednávky',
+  stepOf: (current: number, total: number) => `Krok ${current} z ${total}`,
+  title: 'Chcete k cestě něco přidat?',
+  lead: 'Termín a osoby už známe. Doplňky jsou nepovinné a zaplatíte je stejnými benefity jako pobyt.',
+  payable: 'Zaplatíte benefity',
+  recommended: 'Doporučujeme',
+  change: 'Změnit',
+  edit: 'Upravit',
+  editNote: 'V prototypu jsou údaje převzaté z pobytu a nejdou měnit.',
+  stay: {
+    label: 'Vaše ubytování',
+    meta: (dates: string, nights: number, guests: string) =>
+      `${dates} · ${nights} ${nights === 1 ? 'noc' : nights < 5 ? 'noci' : 'nocí'} · ${guests}`,
+    fee: (amount: string) => `včetně servisního poplatku ${amount}`,
+  },
+  insurance: {
+    title: 'Cestovní pojištění',
+    meta: (region: string, persons: number, days: number) =>
+      `${region} · ${persons} ${persons === 1 ? 'osoba' : persons < 5 ? 'osoby' : 'osob'} · ${days} dní`,
+    whyAbroad:
+      'Léčebné výlohy v zahraničí nehradí česká zdravotní pojišťovna celé. Varianta Standard kryje i zavazadla a sporty.',
+    whyHome:
+      'V Česku léčebné výlohy hradí zdravotní pojišťovna. Pojištění se hodí hlavně kvůli úrazu, odpovědnosti nebo stornu.',
+    nonRefundable:
+      'Pobyt máte nevratný. Varianta Plus kryje i storno pobytu, když ze závažných důvodů nemůžete odjet.',
+    perTrip: 'za celou cestu',
+    details: 'Co přesně pokrývá',
+    none: 'Bez pojištění',
+    noneHint: 'Pojištění můžete přidat i později v detailu objednávky.',
+    disclaimer: 'Ukázkové krytí. Přesné podmínky a limity určí pojišťovna.',
+    tiers: [
+      {
+        id: 'basic',
+        name: 'Základ',
+        perks: ['Léčebné výlohy', 'Úraz', 'Asistence nonstop'],
+        details: [
+          'Ošetření, hospitalizace a léky během cesty.',
+          'Odškodnění při trvalých následcích úrazu.',
+          'Telefonická pomoc v češtině kdykoliv během cesty.',
+        ],
+      },
+      {
+        id: 'standard',
+        name: 'Standard',
+        perks: ['Vše ze Základu', 'Zavazadla', 'Odpovědnost a sporty'],
+        details: [
+          'Všechno z varianty Základ.',
+          'Krádež nebo poškození zavazadel.',
+          'Škoda, kterou nechtěně způsobíte někomu jinému.',
+          'Sporty včetně lyžování.',
+        ],
+      },
+      {
+        id: 'plus',
+        name: 'Plus',
+        perks: ['Vše ze Standardu', 'Storno pobytu', 'Zpoždění letu'],
+        details: [
+          'Všechno z varianty Standard.',
+          'Vrácení peněz za pobyt, když ze závažných důvodů nemůžete odjet.',
+          'Náhrada nutných výdajů při zpoždění letu.',
+        ],
+      },
+    ] satisfies { id: InsuranceTier; name: string; perks: string[]; details: string[] }[],
+  },
+  car: {
+    title: 'Půjčení auta',
+    meta: (pickup: string, days: number) => `${pickup} · ${days} dní`,
+    perTrip: (days: number) => `za ${days} dní`,
+    none: 'Bez auta',
+    noneHint: 'Auto jde přidat i později v detailu objednávky.',
+    deposit:
+      'Při převzetí půjčovna zablokuje kauci na kreditní kartě řidiče. Po vrácení auta ji uvolní. Kauci benefity nepokryjí.',
+    collapsed: 'Potřebujete auto? Ve městě se většinou obejdete bez něj.',
+    expand: 'Ukázat auta',
+    classes: [
+      { id: 'small', name: 'Malé auto', example: '4 místa, manuální převodovka' },
+      { id: 'family', name: 'Rodinné auto', example: '5 míst, velký kufr, automat' },
+    ] satisfies { id: CarClass; name: string; example: string }[],
+  },
+  summary: {
+    title: 'Souhrn cesty',
+    stay: 'Ubytování',
+    insurance: (tier: string) => `Pojištění ${tier}`,
+    car: (name: string) => name,
+    total: 'Celkem',
+    fromBenefits: 'Z benefitů',
+    covered: 'Zaplatíte celé z benefitů',
+    topUp: (amount: string) => `Doplatíte kartou ${amount}`,
+    leftOver: (amount: string) => `Na benefitech vám zbude ${amount}`,
+    balanceLabel: 'Kolik máte na benefitech?',
+    cta: 'Pokračovat do košíku',
+    skip: 'Pokračovat bez doplňků',
+    breakdown: 'Rozpis',
+    next: 'Košík s rozdělením platby je další obrazovka prototypu. Právě ji připravuji.',
+  },
+  stays: {
+    hory: {
+      name: 'Horský hotel Pod Sněžkou',
+      place: 'Pec pod Sněžkou, Krkonoše',
+      photo: 'krkonose',
+      dates: '13.–15. 11. 2026',
+      nights: 2,
+      guests: 2,
+      guestsLabel: '2 dospělí',
+      room: 'Dvoulůžkový pokoj se snídaní',
+      refundable: true,
+      cancellation: 'Zrušení zdarma do 6. 11. 2026',
+      price: 6400,
+      fee: 506,
+      region: 'Česko',
+      abroad: false,
+      recommended: 'car',
+      insuranceDays: 3,
+      insurance: { basic: 190, standard: 290, plus: 450 },
+      carDays: 3,
+      carPickup: 'Vyzvednutí v Praze',
+      car: { small: 1900, family: 2700 },
+      carCollapsed: false,
+    },
+    more: {
+      name: 'Hotel Modrá zátoka',
+      place: 'Makarská, Chorvatsko',
+      photo: 'chorvatsko',
+      dates: '4.–11. 7. 2026',
+      nights: 7,
+      guests: 2,
+      guestsLabel: '2 dospělí',
+      room: 'Dvoulůžkový pokoj s výhledem na moře, snídaně',
+      refundable: false,
+      cancellation: 'Nevratná rezervace',
+      price: 18900,
+      fee: 1493,
+      region: 'Evropa',
+      abroad: true,
+      recommended: 'insurance',
+      insuranceDays: 8,
+      insurance: { basic: 390, standard: 690, plus: 1090 },
+      carDays: 8,
+      carPickup: 'Letiště Split',
+      car: { small: 3600, family: 5200 },
+      carCollapsed: false,
+    },
+    mesto: {
+      name: 'Apartmány Na Nábřeží',
+      place: 'Praha',
+      photo: 'praha',
+      dates: '27.–30. 11. 2026',
+      nights: 3,
+      guests: 2,
+      guestsLabel: '2 dospělí',
+      room: 'Apartmán s kuchyňkou',
+      refundable: true,
+      cancellation: 'Zrušení zdarma do 20. 11. 2026',
+      price: 7200,
+      fee: 569,
+      region: 'Česko',
+      abroad: false,
+      recommended: null,
+      insuranceDays: 4,
+      insurance: { basic: 190, standard: 310, plus: 490 },
+      carDays: 4,
+      carPickup: 'Vyzvednutí v Brně',
+      car: { small: 2400, family: 3400 },
+      carCollapsed: true,
+    },
+    alpy: {
+      name: 'Alpenhof Schladming',
+      place: 'Schladming, Rakouské Alpy',
+      photo: 'rakousko',
+      dates: '1.–5. 2. 2027',
+      nights: 4,
+      guests: 2,
+      guestsLabel: '2 dospělí',
+      room: 'Dvoulůžkový pokoj s polopenzí',
+      refundable: true,
+      cancellation: 'Zrušení zdarma do 18. 1. 2027',
+      price: 12400,
+      fee: 980,
+      region: 'Evropa',
+      abroad: true,
+      recommended: 'insurance',
+      insuranceDays: 5,
+      insurance: { basic: 320, standard: 560, plus: 890 },
+      carDays: 5,
+      carPickup: 'Letiště Salcburk',
+      car: { small: 2900, family: 4200 },
+      carCollapsed: false,
+    },
+  } satisfies Record<StayId, Stay>,
 }
 
 // Dobré vědět před cestou (kapitola 8.6). Obsah je ilustrativní, podmínky by vznikly s partnery.
@@ -681,6 +902,56 @@ export const notes = {
   number: (n: number) => `Poznámka ${n}`,
   source: 'Vychází z analýzy',
   items: {
+    stepper: {
+      source: 'Objednávka, bod 4.7',
+      title: 'Ukazatel kroků',
+      text: 'Dnes člověk při objednávce neví, v jakém kroku je ani kolik jich zbývá. Čtyři kroky ukazují, že doplňky jsou jen krátká zastávka před košíkem.',
+    },
+    addonsStep: {
+      source: 'Prototyp, kapitola 8.8 a test 4',
+      title: 'Doplňky jako samostatný krok',
+      text: 'Nabídka přichází hned po výběru ubytování, kdy člověk řeší cestu jako celek. Je to varianta A testu 4. Proti ní se měří zkrácená nabídka v košíku.',
+    },
+    staySummary: {
+      source: 'Výsledky a objednávka, body 2.1 a 4.1',
+      title: 'Cena včetně poplatku',
+      text: 'Prototyp přeskakuje výsledky a detail hotelu, jejich zjištění jsou v kapitole 4B. Cena pobytu je včetně servisního poplatku, aby se na konci nic nepřičítalo.',
+    },
+    payable: {
+      source: 'Nové kategorie, kapitola 7',
+      title: 'Předpoklad, že doplňky jdou platit benefity',
+      text: 'Jestli jde doplňky zaplatit benefity, je klíčová otevřená otázka. Prototyp s tím počítá, protože na tom celá nabídka stojí. Ověřil bych to jako první.',
+    },
+    insuranceTiers: {
+      source: 'Prototyp, kapitola 8.8',
+      title: 'Nic není předem vybrané',
+      text: 'Tři varianty a vedle nich Bez pojištění. Ceny jsou za celou cestu pro všechny osoby, aby byl hned vidět dopad na benefity. Předem zaškrtnutý doplněk by byl manipulativní.',
+    },
+    recommendation: {
+      source: 'Prototyp, kapitola 8.4',
+      title: 'Doporučení podle místa',
+      text: 'Doporučení se řídí destinací a jedna věta říká proč. U zahraničí je to Standard, u Česka pojištění nedoporučuji, ve městě je auto sbalené.',
+    },
+    stornoHint: {
+      source: 'Detail hotelu, bod 3.3',
+      title: 'Storno u nevratného pobytu',
+      text: 'Hypotéza na test. U nevratné sazby připomenu, že varianta Plus kryje storno pobytu. Cena flexibility je pak vidět na jednom místě.',
+    },
+    deposit: {
+      source: 'Prototyp, kapitola 8.8',
+      title: 'Kauce u auta',
+      text: 'Půjčovny obvykle blokují kauci na kreditní kartě řidiče. Benefity ji nepokryjí, protože nejde o platbu. Říkám to dřív, než to člověk zjistí na místě.',
+    },
+    offerSummary: {
+      source: 'Prototyp, kapitola 8.8',
+      title: 'Souhrn s benefity',
+      text: 'Stejný pruh pokrytí jako v trip builderu. Po každé volbě je hned vidět, jestli se cesta vejde do benefitů a kolik případně doplatíte.',
+    },
+    skip: {
+      source: 'Plán A/B testů, test 4',
+      title: 'Přeskočit jde stejně snadno',
+      text: 'Pokračovat bez doplňků je stejně velké tlačítko, ne schovaný šedý odkaz. Ochranná metrika testu 4 je konverze samotného ubytování.',
+    },
     headline: {
       source: 'Úvodní stránka, bod 1.3',
       title: 'Benefity na prvním místě',

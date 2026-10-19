@@ -32,7 +32,7 @@ export function Chat() {
   return (
     <div
       ref={ref}
-      className={`fixed right-4 bottom-4 flex flex-col items-end gap-3 ${LAYER.floatingButtons}`}
+      className={`fixed right-4 bottom-[calc(1rem+var(--bottom-bar,0px))] flex flex-col items-end gap-3 ${LAYER.floatingButtons}`}
     >
       {open && (
         <section

@@ -1,19 +1,15 @@
 import type { CSSProperties } from 'react'
 import { CarFront, ShieldCheck } from 'lucide-react'
 import { czk, destinations } from '../../content-prototyp'
-import chorvatsko from '../assets/photos/chorvatsko.webp'
-import krkonose from '../assets/photos/krkonose.webp'
-import praha from '../assets/photos/praha.webp'
-import rakousko from '../assets/photos/rakousko.webp'
 import { Note } from '../components/Note'
-import { usePrototype } from '../state'
-
-const PHOTOS: Record<string, string> = { krkonose, chorvatsko, praha, rakousko }
+import { PHOTOS } from '../photos'
+import { DESTINATION_STAY } from '../trip/offer'
+import { useTrip } from '../trip/state'
 const TAG_ICONS = { car: CarFront, insurance: ShieldCheck } as const
 
 /** Oblíbené destinace se štítkem doporučeného doplňku (kapitola 8.4). */
 export function Destinations() {
-  const { notify } = usePrototype()
+  const { startTrip } = useTrip()
   return (
     <section id="inspirace" aria-labelledby="destinace-nadpis" className="scroll-mt-20 px-4 pt-14">
       <div className="mx-auto max-w-6xl" data-reveal>
@@ -37,11 +33,11 @@ export function Destinations() {
               >
                 <button
                   type="button"
-                  onClick={() => notify(destinations.next(item.name))}
+                  onClick={() => startTrip({ stayId: DESTINATION_STAY[item.id] })}
                   className="group relative block aspect-[4/5] w-full overflow-hidden rounded-(--radius-card) text-left shadow-soft transition hover:shadow-lift sm:aspect-[3/4]"
                 >
                   <img
-                    src={PHOTOS[item.id]}
+                    src={PHOTOS[item.id as keyof typeof PHOTOS]}
                     alt=""
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

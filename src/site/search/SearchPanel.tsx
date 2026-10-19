@@ -22,6 +22,8 @@ import { GuestsPicker, type Guests } from './GuestsPicker'
 import { loadRecent, saveRecent, type RecentSearch } from './recent'
 import { looksLikeBookingLink } from './suggest'
 import { CategorySwitch } from './CategorySwitch'
+import { stayFromText } from '../trip/offer'
+import { useTrip } from '../trip/state'
 
 // Stejná pole se vykreslí v panelu a v připnutém řádku. Každé místo má vlastní vyskakovací panely.
 type Place = 'main' | 'sticky'
@@ -99,6 +101,7 @@ export function SearchPanel({
   sticky: boolean
 }) {
   const { variant, searchTab: tab, setSearchTab: setTab, notify } = usePrototype()
+  const { startTrip } = useTrip()
   const [destination, setDestination] = useState('')
   const [carPlace, setCarPlace] = useState('')
   const [area, setArea] = useState<string>(search.insurance.areas[1])
@@ -175,6 +178,7 @@ export function SearchPanel({
     }
     if (tab === 'stay' && looksLikeBookingLink(value)) {
       notify(search.next.hotel)
+      startTrip({ stayId: 'more' })
       return
     }
     if (!range.start || !range.end) {
@@ -195,7 +199,9 @@ export function SearchPanel({
       saveRecent(saved)
       setRecent(saved)
     }
-    notify(tab === 'stay' ? search.next.stay : search.next.other)
+    // Prototyp přeskakuje výsledky a detail hotelu a otevře rovnou nabídku doplňků.
+    if (tab === 'stay') startTrip({ stayId: stayFromText(value) })
+    else notify(search.next.other)
   }
 
   const restore = (saved: RecentSearch) => {
@@ -287,7 +293,10 @@ export function SearchPanel({
                   setDestination(value)
                   setError(null)
                 }}
-                onOpenLink={() => notify(search.next.hotel)}
+                onOpenLink={() => {
+                  notify(search.next.hotel)
+                  startTrip({ stayId: 'more' })
+                }}
                 error={error ?? undefined}
               />
             ))}
@@ -407,6 +416,7 @@ export function SearchPanel({
           if (looksLikeBookingLink(link)) {
             setError(null)
             notify(search.next.hotel)
+            startTrip({ stayId: 'more' })
           } else setError(search.link.error)
         }}
         className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-coral-600 px-6 font-medium text-white shadow-cta transition hover:bg-coral-700 sm:w-auto"

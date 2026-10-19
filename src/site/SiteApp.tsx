@@ -13,12 +13,42 @@ import { Footer } from './sections/Footer'
 import { Chat } from './components/Chat'
 import { PrototypeControls } from './components/PrototypeControls'
 import { useScrollReveal } from './motion'
+import { AddonsScreen } from './addons/AddonsScreen'
+import { TripProvider } from './trip/TripProvider'
+import { useTrip } from './trip/state'
 
-/** Úvodní stránka navrhovaného webu. Pořadí sekcí podle analyza-webu.md, kapitola 8.3. */
+/**
+ * Prototyp navrhovaného webu. Úvodní stránka (pořadí sekcí podle analyza-webu.md, kapitola 8.3)
+ * a obrazovka 2 s nabídkou doplňků na adrese #doplnky (kapitola 8.8).
+ */
 export function SiteApp() {
-  useScrollReveal()
   return (
     <PrototypeProvider>
+      <TripProvider>
+        <Screens />
+      </TripProvider>
+    </PrototypeProvider>
+  )
+}
+
+function Screens() {
+  useScrollReveal()
+  const { route } = useTrip()
+  if (route === 'addons')
+    return (
+      <>
+        <TopBar current="prototype" />
+        <Header minimal />
+        <main className="bg-page">
+          <AddonsScreen />
+        </main>
+        <Footer />
+        <PrototypeControls />
+        <Chat />
+      </>
+    )
+  return (
+    <>
       <TopBar current="prototype" />
       <Header />
       <main>
@@ -34,6 +64,6 @@ export function SiteApp() {
       <Footer />
       <PrototypeControls />
       <Chat />
-    </PrototypeProvider>
+    </>
   )
 }

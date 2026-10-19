@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { SiteApp } from '../SiteApp'
-import { search } from '../../content-prototyp'
+import { offer, search } from '../../content-prototyp'
 
 const setVariant = (variant: 'A' | 'B') =>
   localStorage.setItem('prototyp-ovladani-v2', JSON.stringify({ notes: true, variant }))
@@ -8,6 +8,8 @@ const setVariant = (variant: 'A' | 'B') =>
 describe('Vyhledávání na úvodní stránce', () => {
   beforeEach(() => {
     localStorage.clear()
+    sessionStorage.clear()
+    window.history.replaceState(null, '', '/')
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date(2026, 9, 19, 12))
   })
@@ -55,7 +57,10 @@ describe('Vyhledávání na úvodní stránce', () => {
     fireEvent.click(screen.getByRole('button', { name: /Potvrdit · 2 noci/ }))
     fireEvent.click(screen.getByRole('button', { name: search.guests.done }))
     fireEvent.click(screen.getByRole('button', { name: search.submit }))
-    expect(screen.getByText(search.next.stay)).toBeInTheDocument()
+    // Prototyp přeskočí výsledky a otevře nabídku doplňků s pobytem v Praze.
+    expect(screen.getByRole('heading', { level: 1, name: offer.title })).toBeInTheDocument()
+    expect(screen.getByText(offer.stays.mesto.name)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: offer.change }))
     expect(screen.getByText(search.recentTitle)).toBeInTheDocument()
   })
 })
