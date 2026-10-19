@@ -280,14 +280,14 @@ Návrh je ukazatel kroků a krátké „Co bude dál“ u tlačítka.
 
 ### Test 1. Vyhledávací pole (první v pořadí)
 
-| | Varianta A | Varianta B |
+| | Varianta A (navržená) | Varianta B (kontrolní) |
 | --- | --- | --- |
-| Pole | jedno pole pro místo i odkaz jako dnes, jen v novém vzhledu | pole jen pro místo s našeptávačem hotelů (A), odkaz „Máte vybraný hotel?“ (B) a rozpoznání odkazu (E) |
-| Termín a osoby | podle dnešního chování | vidět hned |
+| Pole | pole jen pro místo s našeptávačem hotelů (A), odkaz „Máte vybraný hotel?“ (B) a rozpoznání odkazu (E) | jedno pole pro místo i odkaz jako dnes, jen v novém vzhledu |
+| Termín a osoby | vidět hned | podle dnešního chování |
 | Sekce D a rozšíření F | ano | ano |
 | Rozložení na desktopu | jeden řádek | jeden řádek |
 
-Varianta A respektuje důvody, proč je web dnes postavený tak, jak je. Ty neznám a nechci je předem zahodit.
+Varianta A je navržená úprava a v prototypu se ukazuje jako výchozí. Varianta B je dnešní řešení v novém vzhledu a slouží jako kontrolní. Ta respektuje důvody, proč je web dnes postavený tak, jak je. Ty neznám a nechci je předem zahodit.
 
 - **Hlavní metrika.** Konverze od návštěvy úvodní stránky po zaplacenou objednávku.
 - **Vedlejší metriky.** Podíl návštěv, které začnou hledat, a poměr hledání podle místa, hotelu a odkazu.
@@ -371,7 +371,7 @@ Prvními kandidáty jsou cestovní pojištění a půjčení auta. Navazují na 
 
 ### 8.1 Tři obrazovky, které na sebe navazují
 
-1. **Úvodní stránka s kategoriemi.** Ubytování, půjčení auta a cestovní pojištění spolu s úpravami z kapitoly 4. Každá změna má malou poznámku, proč vznikla, s odkazem na konkrétní zjištění. Poznámky jde vypnout přepínačem, aby se stránka dala projít i jako běžný web.
+1. **Úvodní stránka s kategoriemi.** Ubytování, půjčení auta a cestovní pojištění spolu s úpravami z kapitoly 4. Každá změna má malou očíslovanou poznámku, proč vznikla, a v ní odkaz na konkrétní zjištění. Poznámky jde vypnout přepínačem, aby se stránka dala projít i jako běžný web.
 2. **Nabídka doplňků po výběru ubytování.** Shrnutí vybraného fiktivního ubytování, cestovní pojištění ve třech variantách a půjčení auta. Tady se rozhoduje o tržbě na rezervaci. Odpovídá umístění nabídky po výběru ubytování a před košíkem.
 3. **Košík s rozdělením platby.** Platba benefity s předvyplněnou částkou a automaticky dopočítaným doplatkem kartou. Metody jsou dlaždice s logy (zjištění 4.2), souhlas s marketingem není předem zaškrtnutý (4.4) a tlačítko je na konci formuláře (4.3). Pokud benefity pokryjí celou částku, doplatek se neukáže.
 4. **Potvrzení.** Není to samostatná obrazovka, ale stav košíku po kliknutí na tlačítko Zaplatit. Shrne objednávku a nabídne doplněk, který člověk nevybral. To je nejméně rizikové místo nabídky z kapitoly 7.
@@ -413,15 +413,15 @@ Pořadí shora dolů.
    Na desktopu jsou všechna pole v jednom řádku (viz test 3). Když panel odjede z obrazovky, připne se nahoru. Na desktopu jako celé hledání v jednom řádku, takže jde hledat kdykoliv bez posouvání. Na mobilu jako zkrácený řádek, který vrátí k panelu.
 2. **Nadpis o celé cestě.** Ve smyslu „Celá dovolená za benefity. Ubytování, auto i pojištění.“ Pod ním podporované benefitní programy.
 
-   Vedle nadpisu je karta **Doplňkové služby** s cestovním pojištěním a půjčením auta, orientační cenou a fotkou. Doplňky tak člověk vidí už v první obrazovce, ještě než začne hledat. Klik na doplněk přepne vyhledávání na jeho záložku. Na mobilu jsou to dvě dlaždice pod perexem. Ceny v prototypu jsou fiktivní.
+   Rozložení vychází z mého prvního vizuálu (`vizual-first-version.png`). Na desktopu je nahoře vlevo nadpis, pod ním karta hledání se záložkami jako segmenty uvnitř karty. Vpravo vedle obou stojí vysoká karta **Doplňkové služby** s cestovním pojištěním, půjčením auta, orientační cenou a fotkou, zarovnaná ke kartě hledání. Hledání a doplňky tak člověk vidí vedle sebe jako jednu cestu, ještě než začne hledat. Klik na doplněk přepne vyhledávání na jeho záložku. Karta říká, že doplněk jde přidat k pobytu po výběru ubytování, nebo koupit zvlášť. Na mobilu jde pod sebou nadpis, hledání a doplňky jako dvě dlaždice. Ceny v prototypu jsou fiktivní.
 3. **Oblíbené destinace s doporučeným doplňkem.** Viz 8.4.
 4. ~~**Jedny benefity na celou cestu.**~~ Samostatné karty kategorií jsem při stavbě vypustil. Kategorie už ukazují záložky vyhledávání a karta Doplňkové služby v úvodu, třetí opakování by stránku jen prodloužilo. Odkaz na stránku kategorie má každá karta v trip builderu („Více o kategorii“).
 5. **Trip builder.** Viz 8.5.
 6. **Dobré vědět před cestou.** Viz 8.6.
-7. **Interaktivní průvodce.** Tři cesty, rezervace na webu, rozšíření do prohlížeče a přidání auta a pojištění.
-8. **Vybíráte na Booking.com?** Rozšíření do prohlížeče a vložení odkazu.
+7. **Interaktivní průvodce.** Tři cesty, rezervace na webu, rozšíření do prohlížeče a přidání auta a pojištění. Druhé dvě jsou označené jako návrh. Šest kroků rezervace vychází z dnešní stránky Jak to funguje, každý má jednu větu a „Více podrobností“. Vedle je ukázka rozhraní nakreslená v HTML a CSS s místem, kam by člověk klikl. Na mobilu je ukázka nahoře a pod ní jen aktuální krok, ostatní kroky zůstávají v HTML pro čtečky a vyhledávače. Kroky se přepínají tlačítky nebo swipem.
+8. **Vybíráte na Booking.com?** Hlavní je karta rozšíření s ukázkou tlačítka na stránce hotelu a odkazem „Ukázat v průvodci“, který otevře cestu s rozšířením. Vedle je menší karta s vložením odkazu. Její tlačítko vrátí stránku k hledání a rovnou otevře pole pro odkaz.
 9. **Blok pro HR** s odkazem na B2B web.
-10. **FAQ** s kategoriemi Obecné, Platba, Auto a Pojištění.
+10. **FAQ** s kategoriemi Obecné, Platba, Auto a Pojištění. Odpovědi v kategoriích Obecné a Platba vycházejí jen z toho, co dnes říká stránka Jak to funguje. Odpovědi k autu a pojištění jsou ukázkové a takto označené. Otázky, na které odpověď neznám (slevy Genius, limit 25 000 Kč, výše servisního poplatku), jsem do prototypu nedal.
 11. **Patička** s nastavením cookies.
 12. **Chat** jako plovoucí tlačítko vpravo dole, po otevření ukázka konverzace s AI asistentem. Nabízí tři časté dotazy s předpřipravenou odpovědí a říká, kdy přijde odpověď mimo provozní dobu.
 
@@ -490,7 +490,9 @@ Konkrétní podmínky pojištění a půjčení bych formuloval s partnery. V pr
 ### 8.7 Technická rozhodnutí
 
 - **Samostatná adresa.** Prototyp je druhá stránka projektu na adrese `/catchhotels-case-study/prototyp/`. Kotvy v případové studii se tak nepletou s prototypem a odkaz jde poslat přímo.
-- **Ovládání prototypu.** Vlevo dole je malý panel s přepínači Poznámky a Vyhledávání A nebo B. Vpravo dole je chat.
+- **Ovládání prototypu.** Vlevo dole je malý panel s přepínači Poznámky a Vyhledávání A nebo B. Výchozí je varianta A, tedy navržená úprava. Vpravo dole je chat.
+- **Poznámky „proč“.** Otevřená je vždy jen jedna a leží nad vším ostatním. Standardně se ukáže pod číslem. Když se tam nevejde, ukáže se tam, kde je místo, a nikdy neuteče mimo obrazovku. Čísla jdou po stránce shora dolů a zleva doprava a počítají jen to, co je opravdu vidět, takže v řadě nejsou mezery na mobilu ani ve variantě B. Z kterého bodu analýzy změna vychází, je napsané až v otevřené poznámce, třeba „Úvodní stránka, bod 1.1“.
+- **Pohyb.** Sekce a karty se při scrollování plynule objeví, hero naskočí po načtení. Odpovědi v FAQ a v Dobré vědět se plynule rozbalí. Při přepnutí Ubytování, Auta a Pojištění se zvýraznění posune a pole přijedou ze strany, kam se přepíná. Stejný přepínač je i v připnuté liště, na mobilu jako tři ikony. Částky v trip builderu se dopočítají místo skoku. Kdo má v systému omezený pohyb, uvidí vše bez animací.
 - **Fotky.** Fotky destinací z Unsplash s volnou licencí. Jsou to fotky míst, ne skutečných hotelů, a jsou zmenšené pro rychlé načtení.
 - **Ceny v korunách.** Benefitní karty (Edenred, Pluxee, Up) mají zůstatek v korunách. Kafeterie pracují s body a v Česku u nich obvykle platí, že jeden bod je jedna koruna. To je ale moje obecná znalost, nemám ji ověřenou u všech programů a každý zaměstnavatel si může nastavit vlastní pravidla. Navíc služba podle inzerátu funguje i na Slovensku a v Polsku, kde se platí v eurech a zlotých. Koruny proto sedí na všechny skupiny a odpovídají současnému webu. Formulace „Kolik máte na benefitech?“ a „Zaplaceno z benefitů“ fungují pro kartu i kafeterii.
 
