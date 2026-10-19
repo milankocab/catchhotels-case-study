@@ -1,0 +1,61 @@
+import { fireEvent, render, screen } from '@testing-library/react'
+import { SiteApp } from '../SiteApp'
+import { search } from '../../content-prototyp'
+
+const setVariant = (variant: 'A' | 'B') =>
+  localStorage.setItem('prototyp-ovladani', JSON.stringify({ notes: true, variant }))
+
+describe('Vyhledávání na úvodní stránce', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 9, 19, 12))
+  })
+  afterEach(() => vi.useRealTimers())
+
+  it('ve variantě B ukazuje termín a osoby hned', () => {
+    setVariant('B')
+    render(<SiteApp />)
+    expect(screen.getByRole('combobox')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Termín/ })).toBeInTheDocument()
+  })
+
+  it('ve variantě A ukáže termín až po zadání místa, stejně jako dnešní web', () => {
+    setVariant('A')
+    render(<SiteApp />)
+    expect(screen.queryByRole('button', { name: /Termín/ })).not.toBeInTheDocument()
+    fireEvent.change(screen.getByPlaceholderText(search.combinedPlaceholder), {
+      target: { value: 'Praha' },
+    })
+    expect(screen.getByRole('button', { name: /Termín/ })).toBeInTheDocument()
+  })
+
+  it('našeptává hotely podle názvu a pozná vložený odkaz z Booking.com', () => {
+    setVariant('B')
+    render(<SiteApp />)
+    const input = screen.getByRole('combobox')
+    fireEvent.change(input, { target: { value: 'zátoka' } })
+    expect(screen.getByRole('option', { name: /Hotel Modrá zátoka/ })).toBeInTheDocument()
+    fireEvent.change(input, { target: { value: 'https://www.booking.com/hotel/cz/x.html' } })
+    fireEvent.click(screen.getByRole('option', { name: new RegExp(search.fromLink) }))
+    expect(screen.getByText(search.next.hotel)).toBeInTheDocument()
+  })
+
+  it('bez místa upozorní na chybu a po odeslání si hledání zapamatuje', () => {
+    setVariant('B')
+    render(<SiteApp />)
+    fireEvent.click(screen.getByRole('button', { name: search.submit }))
+    expect(screen.getByText(search.destinationError)).toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'Praha' } })
+    fireEvent.click(screen.getByRole('button', { name: search.submit }))
+    // Bez termínu se otevře kalendář. Dnešek je v testu 19. 10. 2026.
+    fireEvent.click(screen.getByRole('button', { name: /13\. listopadu/ }))
+    fireEvent.click(screen.getByRole('button', { name: /15\. listopadu/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Potvrdit · 2 noci/ }))
+    fireEvent.click(screen.getByRole('button', { name: search.guests.done }))
+    fireEvent.click(screen.getByRole('button', { name: search.submit }))
+    expect(screen.getByText(search.next.stay)).toBeInTheDocument()
+    expect(screen.getByText(search.recentTitle)).toBeInTheDocument()
+  })
+})

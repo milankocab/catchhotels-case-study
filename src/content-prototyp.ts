@@ -64,7 +64,6 @@ export type SearchVariant = (typeof controls.variants)[number]['id']
 
 // Dočasné bloky, než se postaví jednotlivé sekce úvodní stránky.
 export const sections = [
-  { id: 'inspirace', step: '2.3', title: 'Oblíbené destinace, kategorie a trip builder' },
   { id: 'jak-to-funguje', step: '2.4', title: 'Dobré vědět, průvodce, Booking, HR a FAQ' },
 ] as const
 
@@ -84,7 +83,7 @@ export const hero = {
     title: 'Doplňkové služby',
     lead: 'Přidejte k pobytu a zaplaťte stejnými benefity.',
     items: [
-      { tab: 'insurance', label: 'Cestovní pojištění', price: 'od 390 Kč', unit: 'za cestu' },
+      { tab: 'insurance', label: 'Cestovní pojištění', price: 'od 190 Kč', unit: 'za cestu' },
       { tab: 'car', label: 'Půjčení auta', price: 'od 450 Kč', unit: 'za den' },
     ] satisfies { tab: SearchTab; label: string; price: string; unit: string }[],
     photoAlt: 'Malé oranžové auto zaparkované na slunné ulici',
@@ -224,6 +223,126 @@ export const search = {
   sticky: { label: 'Upravit hledání', empty: 'Kam pojedete?' },
 }
 
+export const czk = (value: number) =>
+  `${new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(value)} Kč`
+
+// Oblíbené destinace se štítkem doplňku (kapitola 8.4). Ceny jsou fiktivní.
+export type AddonKind = 'car' | 'insurance'
+export const destinations = {
+  title: 'Oblíbené destinace',
+  lead: 'U každého místa vám rovnou poradíme, jestli se hodí auto nebo pojištění.',
+  priceFrom: 'od',
+  perNight: 'za noc',
+  items: [
+    {
+      id: 'krkonose',
+      name: 'Krkonoše',
+      country: 'Česko',
+      price: 1890,
+      addon: 'car',
+      tag: 'Na hory se hodí auto',
+    },
+    {
+      id: 'chorvatsko',
+      name: 'Makarská riviéra',
+      country: 'Chorvatsko',
+      price: 2490,
+      addon: 'insurance',
+      tag: 'Do zahraničí s pojištěním',
+    },
+    { id: 'praha', name: 'Praha', country: 'Česko', price: 1590, addon: null, tag: null },
+    {
+      id: 'rakousko',
+      name: 'Rakouské Alpy',
+      country: 'Rakousko',
+      price: 2790,
+      addon: 'insurance',
+      tag: 'Na lyže s pojištěním',
+    },
+  ] satisfies {
+    id: string
+    name: string
+    country: string
+    price: number
+    addon: AddonKind | null
+    tag: string | null
+  }[],
+  next: (name: string) =>
+    `Otevře se nabídka ubytování v místě ${name}. Doporučený doplněk bude zvýrazněný, ale nezaškrtnutý. Tato obrazovka prototypu se připravuje.`,
+}
+
+// Trip builder „Sestavte si cestu za benefity“ (kapitola 8.5). Všechno jsou fiktivní ukázky.
+export type TripPart = 'car' | 'stay' | 'insurance'
+export const tripBuilder = {
+  title: 'Sestavte si cestu za benefity',
+  lead: 'Vyberte ukázkovou cestu a přidejte, co k ní potřebujete. Hned uvidíte, kolik zaplatíte z benefitů.',
+  presetsLabel: 'Ukázková cesta',
+  partLabels: { car: 'Auto', stay: 'Ubytování', insurance: 'Pojištění' },
+  add: (label: string, price: string) => `Přidat ${label.toLowerCase()} od ${price}`,
+  remove: 'Odebrat',
+  recommended: 'Doporučujeme',
+  more: 'Více o kategorii',
+  presets: [
+    {
+      id: 'hory',
+      label: 'Víkend na horách',
+      recommended: 'car',
+      stay: {
+        name: 'Horský hotel Pod Sněžkou',
+        place: 'Pec pod Sněžkou, Krkonoše',
+        dates: '13.–15. 11. 2026 · 2 noci · 2 dospělí',
+        price: 6400,
+      },
+      car: { name: 'Malé auto', detail: '3 dny, vyzvednutí v Praze', price: 1900 },
+      insurance: { name: 'Pojištění Česko', detail: '2 osoby na 3 dny', price: 190 },
+    },
+    {
+      id: 'more',
+      label: 'Týden u moře',
+      recommended: 'insurance',
+      stay: {
+        name: 'Hotel Modrá zátoka',
+        place: 'Makarská, Chorvatsko',
+        dates: '4.–11. 7. 2026 · 7 nocí · 2 dospělí',
+        price: 18900,
+      },
+      car: { name: 'Malé auto', detail: '8 dní, vyzvednutí na letišti Split', price: 3600 },
+      insurance: { name: 'Pojištění Evropa', detail: '2 osoby na 8 dní', price: 390 },
+    },
+    {
+      id: 'mesto',
+      label: 'Prodloužený víkend ve městě',
+      recommended: null,
+      stay: {
+        name: 'Apartmány Na Nábřeží',
+        place: 'Praha',
+        dates: '27.–30. 11. 2026 · 3 noci · 2 dospělí',
+        price: 7200,
+      },
+      car: { name: 'Malé auto', detail: '4 dny, vyzvednutí v Brně', price: 2400 },
+      insurance: { name: 'Pojištění Česko', detail: '2 osoby na 4 dny', price: 190 },
+    },
+  ] satisfies {
+    id: string
+    label: string
+    recommended: AddonKind | null
+    stay: { name: string; place: string; dates: string; price: number }
+    car: { name: string; detail: string; price: number }
+    insurance: { name: string; detail: string; price: number }
+  }[],
+  summaryTitle: 'Souhrn cesty',
+  balanceLabel: 'Kolik máte na benefitech?',
+  balanceHint: 'Částka v korunách. Zůstatek najdete v aplikaci svého programu.',
+  defaultBalance: 22000,
+  total: 'Celkem',
+  fromBenefits: 'Z benefitů',
+  covered: 'Zaplatíte celé z benefitů',
+  topUp: (amount: string) => `Doplatíte ${amount}`,
+  leftOver: (amount: string) => `Na benefitech vám zbude ${amount}`,
+  cta: 'Naplánovat tuto cestu',
+  next: 'Otevře se nabídka doplňků s předvyplněnými položkami. Tato obrazovka prototypu se připravuje.',
+}
+
 // Poznámky „proč“. Čísla odkazují na zjištění v analyza-webu.md.
 export const notes = {
   open: 'Proč je to takhle',
@@ -289,6 +408,21 @@ export const notes = {
       finding: '7',
       title: 'Doplňky hned na začátku',
       text: 'Pojištění a auto jsou vidět už v první obrazovce i s orientační cenou. Člověk ví, že benefity zaplatí celou cestu, ještě než začne hledat. Klik přepne vyhledávání na danou kategorii.',
+    },
+    destinations: {
+      finding: '7',
+      title: 'Doplněk podle místa',
+      text: 'Štítek doporučí doplněk, který k místu dává smysl. Na horách auto, v zahraničí pojištění, ve městě nic. Na další obrazovce bude doplněk zvýrazněný, ale nezaškrtnutý, protože předem zaškrtnutá volba by byla manipulativní.',
+    },
+    tripBuilder: {
+      finding: '7',
+      title: 'Celá cesta na jednom místě',
+      text: 'Ukazuje vizi produktu. Celá cesta, jedna platba benefity, vyšší tržba na zákazníka. Zároveň člověka naučí, že benefity pokryjí i auto a pojištění.',
+    },
+    coverage: {
+      finding: '1.3',
+      title: 'Kolik pokryjí benefity',
+      text: 'Lidé přemýšlejí v tom, kolik mají na benefitech. Pruh hned ukáže, jestli zaplatí všechno z benefitů, nebo kolik doplatí.',
     },
     chat: {
       finding: '1.10',
