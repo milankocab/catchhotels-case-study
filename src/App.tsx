@@ -1,4 +1,5 @@
 import { Hero } from './sections/Hero'
+import { TopBar } from './shared/TopBar'
 import {
   AuditSection,
   CalculatorSection,
@@ -13,6 +14,7 @@ import {
 export default function App() {
   return (
     <>
+      <TopBar current="study" />
       <Hero />
       <main>
         <ContextSection />
