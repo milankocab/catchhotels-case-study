@@ -13,6 +13,13 @@ Sem patří screenshoty z auditu nákupního procesu (sekce 2 case study). Strá
 | `05-platba-benefity.png` | Platba benefity | Krok s výběrem benefitního programu a rozdělením platby, bez dokončení |
 | `06-dalsi-zjisteni.png` | Volitelné | Další zjištění, třeba zobrazení na mobilu nebo e-mail. Pokud ho nepotřebuji, smažu šesté zjištění v `src/content.ts` |
 
+## Struktura složky
+
+- Kořen složky: oříznuté desktopové screenshoty kroků `01` až `06`, které stránka zobrazuje. Navíc `03b-detail-hlavicka.jpg` (zatím nepoužitý).
+- `desktop-cele-stranky/`: celé stránky z desktopu v plném rozlišení, jako podklad pro další ořezy.
+- `mobil/`: stejné kroky nafocené na mobilu (šířka 390 px).
+- Stránka načítá jen soubory přímo v kořeni, podsložky se do buildu nedostanou.
+
 ## Pravidla
 
 - Formát PNG, JPG nebo WebP. Přípona může být jiná než `.png`, rozhoduje název před tečkou.
