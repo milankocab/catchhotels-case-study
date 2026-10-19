@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Bot, MessageCircle, Send, X } from 'lucide-react'
 import { chat } from '../../content-prototyp'
 import { usePrototype } from '../state'
+import { LAYER } from '../floating'
 import { useDismiss } from '../useDismiss'
 import { Note } from './Note'
 
@@ -31,7 +32,7 @@ export function Chat() {
   return (
     <div
       ref={ref}
-      className={`fixed right-4 bottom-4 flex flex-col items-end gap-3 ${open ? 'z-40' : 'z-[15]'}`}
+      className={`fixed right-4 bottom-4 flex flex-col items-end gap-3 ${LAYER.floatingButtons}`}
     >
       {open && (
         <section

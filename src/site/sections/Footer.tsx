@@ -1,6 +1,6 @@
 import { footer } from '../../content-prototyp'
 import { Logo } from '../../components/Logo'
-import { usePrototype } from '../state'
+import { scrollToSection, usePrototype } from '../state'
 
 export function Footer() {
   const { notify } = usePrototype()
@@ -17,7 +17,11 @@ export function Footer() {
                   <li key={link.label}>
                     <button
                       type="button"
-                      onClick={() => notify(link.note)}
+                      onClick={() =>
+                        'target' in link && link.target
+                          ? scrollToSection(link.target)
+                          : notify(link.note)
+                      }
                       className="flex min-h-11 items-center text-left text-sm text-azure-light underline-offset-4 hover:text-white hover:underline"
                     >
                       {link.label}

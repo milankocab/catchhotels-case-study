@@ -3,7 +3,7 @@ import { SiteApp } from '../SiteApp'
 import { search } from '../../content-prototyp'
 
 const setVariant = (variant: 'A' | 'B') =>
-  localStorage.setItem('prototyp-ovladani', JSON.stringify({ notes: true, variant }))
+  localStorage.setItem('prototyp-ovladani-v2', JSON.stringify({ notes: true, variant }))
 
 describe('Vyhledávání na úvodní stránce', () => {
   beforeEach(() => {
@@ -13,15 +13,15 @@ describe('Vyhledávání na úvodní stránce', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it('ve variantě B ukazuje termín a osoby hned', () => {
-    setVariant('B')
+  it('ve variantě A ukazuje termín a osoby hned', () => {
+    setVariant('A')
     render(<SiteApp />)
     expect(screen.getByRole('combobox')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Termín/ })).toBeInTheDocument()
   })
 
-  it('ve variantě A ukáže termín až po zadání místa, stejně jako dnešní web', () => {
-    setVariant('A')
+  it('ve variantě B ukáže termín až po zadání místa, stejně jako dnešní web', () => {
+    setVariant('B')
     render(<SiteApp />)
     expect(screen.queryByRole('button', { name: /Termín/ })).not.toBeInTheDocument()
     fireEvent.change(screen.getByPlaceholderText(search.combinedPlaceholder), {
@@ -31,7 +31,7 @@ describe('Vyhledávání na úvodní stránce', () => {
   })
 
   it('našeptává hotely podle názvu a pozná vložený odkaz z Booking.com', () => {
-    setVariant('B')
+    setVariant('A')
     render(<SiteApp />)
     const input = screen.getByRole('combobox')
     fireEvent.change(input, { target: { value: 'zátoka' } })
@@ -42,7 +42,7 @@ describe('Vyhledávání na úvodní stránce', () => {
   })
 
   it('bez místa upozorní na chybu a po odeslání si hledání zapamatuje', () => {
-    setVariant('B')
+    setVariant('A')
     render(<SiteApp />)
     fireEvent.click(screen.getByRole('button', { name: search.submit }))
     expect(screen.getByText(search.destinationError)).toBeInTheDocument()

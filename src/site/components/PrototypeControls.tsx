@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { controls } from '../../content-prototyp'
+import { LAYER } from '../floating'
 import { usePrototype } from '../state'
 
 /**
  * Plovoucí panel vlevo dole. Ovládá prototyp, není součástí navrhovaného webu.
- * Vrstva je nízko, aby otevřený kalendář nebo výběr osob na mobilu ležel nad ním.
  */
 export function PrototypeControls() {
   const { notes, setNotes, variant, setVariant } = usePrototype()
@@ -16,7 +16,7 @@ export function PrototypeControls() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 left-4 z-[15] flex min-h-11 ring-1 ring-white/40 items-center gap-2 rounded-full bg-cobalt-deep px-4 text-sm font-medium text-white shadow-lift hover:bg-cobalt"
+        className={`fixed bottom-4 left-4 ${LAYER.floatingButtons} flex min-h-11 ring-1 ring-white/40 items-center gap-2 rounded-full bg-cobalt-deep px-4 text-sm font-medium text-white shadow-lift hover:bg-cobalt`}
       >
         <SlidersHorizontal aria-hidden size={18} />
         <span className="max-sm:sr-only">{controls.open}</span>
@@ -27,7 +27,7 @@ export function PrototypeControls() {
   return (
     <section
       aria-label={controls.title}
-      className="fixed bottom-4 left-4 z-[15] w-[min(18rem,calc(100vw-2rem))] animate-rise rounded-(--radius-card) bg-cobalt-deep p-4 text-sm text-white shadow-lift"
+      className={`fixed bottom-4 left-4 ${LAYER.floatingButtons} w-[min(18rem,calc(100vw-2rem))] animate-rise rounded-(--radius-card) bg-cobalt-deep p-4 text-sm text-white shadow-lift`}
     >
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-heading text-base font-semibold text-white">{controls.title}</h2>

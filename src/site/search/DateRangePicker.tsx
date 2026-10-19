@@ -53,7 +53,7 @@ export function DateRangePicker({
       : search.dates.nights(nights)
 
   return (
-    <div className="flex max-h-[min(34rem,80vh)] flex-col">
+    <div className="flex max-h-[min(34rem,80vh)] min-h-0 flex-col">
       <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
         <p className="flex items-center gap-2 font-medium text-cobalt-deep" aria-live="polite">
           {hint}

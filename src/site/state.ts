@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext, type Dispatch, type SetStateAction } from 'react'
 import type { SearchTab, SearchVariant } from '../content-prototyp'
 
 export type PrototypeState = {
@@ -13,6 +13,11 @@ export type PrototypeState = {
   setSearchTab: (value: SearchTab) => void
   /** Krátké upozornění dole na obrazovce, třeba u odkazů mimo prototyp. */
   notify: (text: string) => void
+  /** Otevřená poznámka „proč“. Najednou je otevřená vždy jen jedna. */
+  activeNote: string | null
+  setActiveNote: Dispatch<SetStateAction<string | null>>
+  /** Pořadová čísla poznámek podle toho, jak jdou na stránce shora dolů. */
+  noteNumbers: Record<string, number>
 }
 
 export const PrototypeContext = createContext<PrototypeState | null>(null)
@@ -25,5 +30,9 @@ export function usePrototype(): PrototypeState {
 
 /** Plynule posune stránku na sekci. Hash v adrese neměním, aby se nepletl s kotvami studie. */
 export function scrollToSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  document.getElementById(id)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
 }
+
+/** Události mezi sekcemi. Sekce Booking.com otevírá cestu v průvodci a vložení odkazu v hledání. */
+export const GUIDE_EVENT = 'prototyp:pruvodce'
+export const LINK_EVENT = 'prototyp:odkaz'

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { SiteApp } from './SiteApp'
-import { controls, footer, placeholder, switcher } from '../content-prototyp'
+import { controls, footer, notes, placeholder, switcher } from '../content-prototyp'
 
 describe('Prototyp úvodní stránky', () => {
   beforeEach(() => localStorage.clear())
@@ -33,10 +33,23 @@ describe('Prototyp úvodní stránky', () => {
     expect(notes).toHaveAttribute('aria-checked', 'true')
     fireEvent.click(notes)
     expect(notes).toHaveAttribute('aria-checked', 'false')
-    fireEvent.click(screen.getByRole('radio', { name: 'A' }))
-    expect(JSON.parse(localStorage.getItem('prototyp-ovladani') ?? '{}')).toEqual({
+    fireEvent.click(screen.getByRole('radio', { name: 'B' }))
+    expect(JSON.parse(localStorage.getItem('prototyp-ovladani-v2') ?? '{}')).toEqual({
       notes: false,
-      variant: 'A',
+      variant: 'B',
     })
+  })
+
+  it('čísluje poznámky po stránce a ukáže vždy jen jednu', async () => {
+    render(<SiteApp />)
+    const first = await screen.findByRole('button', { name: /^Poznámka 1, / })
+    const second = screen.getByRole('button', { name: /^Poznámka 2, / })
+    fireEvent.click(first)
+    expect(screen.getAllByRole('dialog')).toHaveLength(1)
+    expect(screen.getByRole('dialog')).toHaveTextContent(notes.source)
+    fireEvent.click(second)
+    expect(screen.getAllByRole('dialog')).toHaveLength(1)
+    expect(second).toHaveAttribute('aria-expanded', 'true')
+    expect(first).toHaveAttribute('aria-expanded', 'false')
   })
 })

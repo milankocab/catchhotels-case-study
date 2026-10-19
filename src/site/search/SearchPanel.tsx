@@ -1,30 +1,27 @@
-import { useCallback, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import {
   ArrowLeft,
-  BedDouble,
   CalendarDays,
-  CarFront,
   Clock,
   Globe,
   Link2,
   MapPin,
   Search,
-  ShieldCheck,
   SquarePen,
   Users,
 } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { search } from '../../content-prototyp'
 import { Note } from '../components/Note'
-import { scrollToSection, usePrototype } from '../state'
-import { useDismiss } from '../useDismiss'
+import { LINK_EVENT, scrollToSection, usePrototype } from '../state'
+import { LAYER, useFloating, useOutside } from '../floating'
 import { fromIsoDate, formatRange, toIsoDate } from './dates'
 import { DateRangePicker, type DateRange } from './DateRangePicker'
 import { DestinationField } from './DestinationField'
 import { GuestsPicker, type Guests } from './GuestsPicker'
 import { loadRecent, saveRecent, type RecentSearch } from './recent'
 import { looksLikeBookingLink } from './suggest'
-
-const TAB_ICONS = { stay: BedDouble, car: CarFront, insurance: ShieldCheck } as const
+import { CategorySwitch } from './CategorySwitch'
 
 // Stejná pole se vykreslí v panelu a v připnutém řádku. Každé místo má vlastní vyskakovací panely.
 type Place = 'main' | 'sticky'
@@ -55,10 +52,12 @@ function PanelField({
   children: ReactNode
   align?: 'left' | 'right'
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useDismiss(ref, open, onClose)
+  const anchor = useRef<HTMLDivElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  useOutside([anchor, panel], open, onClose)
+  useFloating(open, anchor, panel, { align, sheetOnMobile: true })
   return (
-    <div ref={ref} className={`relative ${open ? 'z-30' : ''}`}>
+    <div ref={anchor} className="relative">
       <button
         type="button"
         onClick={onToggle}
@@ -70,18 +69,25 @@ function PanelField({
         <span className="sr-only">{label}: </span>
         <span className={`truncate ${text ? '' : 'text-[#8392a5]'}`}>{text || placeholder}</span>
       </button>
-      {open && (
-        <>
-          <div aria-hidden className="fixed inset-0 z-40 bg-cobalt-deep/30 sm:hidden" />
-          <div
-            role="dialog"
-            aria-label={label}
-            className={`z-50 animate-rise overflow-hidden bg-white shadow-lift max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:rounded-t-[20px] sm:absolute sm:top-full sm:mt-2 sm:w-[380px] sm:rounded-(--radius-card) ${align === 'right' ? 'sm:right-0' : 'sm:left-0'}`}
-          >
-            {children}
-          </div>
-        </>
-      )}
+      {open &&
+        createPortal(
+          <>
+            <div
+              aria-hidden
+              className={`fixed inset-0 ${LAYER.popover} bg-cobalt-deep/30 sm:hidden`}
+            />
+            <div
+              ref={panel}
+              role="dialog"
+              aria-label={label}
+              style={{ visibility: 'hidden' }}
+              className={`fixed ${LAYER.popover} flex animate-rise flex-col overflow-hidden bg-white shadow-lift max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[85vh] max-sm:rounded-t-[20px] sm:top-0 sm:left-0 sm:w-[380px] sm:rounded-(--radius-card)`}
+            >
+              {children}
+            </div>
+          </>,
+          document.body,
+        )}
     </div>
   )
 }
@@ -106,9 +112,10 @@ export function SearchPanel({
   const closePanel = useCallback(() => setPanel(null), [])
   const toggle = (next: Panel) => setPanel((current) => (current === next ? null : next))
 
-  const isA = variant === 'A'
-  // Ve variantě A se termín a osoby ukážou až po zadání místa, stejně jako na dnešním webu.
-  const showRest = !(isA && tab === 'stay' && destination.trim() === '')
+  // Varianta B je dnešní řešení v novém vzhledu, varianta A navržená úprava.
+  const isCurrent = variant === 'B'
+  // Ve variantě B se termín a osoby ukážou až po zadání místa, stejně jako na dnešním webu.
+  const showRest = !(isCurrent && tab === 'stay' && destination.trim() === '')
   const dateText = formatRange(range.start, range.end)
   const guestText = search.guests.summary(guests.adults, guests.children)
   const where = tab === 'car' ? carPlace : tab === 'insurance' ? area : destination
@@ -118,14 +125,46 @@ export function SearchPanel({
 
   // Při přepnutí záložky nebo varianty začínám bez chyb a bez vložení odkazu.
   // Záložku mění i menu v hlavičce, proto stav srovnám už při vykreslení, ne v efektu.
+  // Výjimkou je výzva z sekce Booking.com, která po přepnutí na ubytování otevře vložení odkazu.
   const resetKey = `${tab}-${variant}`
   const [lastResetKey, setLastResetKey] = useState(resetKey)
+  const [linkRequested, setLinkRequested] = useState(false)
+  // Pole nové kategorie přijedou ze strany, kam se v přepínači posouvá zvýraznění.
+  const [tabMotion, setTabMotion] = useState('')
   if (lastResetKey !== resetKey) {
+    const order = search.tabs.map((item) => item.id as string)
+    const previous = order.indexOf(lastResetKey.split('-')[0])
+    const next = order.indexOf(tab)
+    if (previous !== next)
+      setTabMotion(next > previous ? 'animate-slide-left' : 'animate-slide-right')
     setLastResetKey(resetKey)
     setError(null)
-    setLinkMode(false)
+    setLinkMode(linkRequested && tab === 'stay')
+    setLinkRequested(false)
     setPanel(null)
   }
+
+  // Sekce Vybíráte na Booking.com? posune stránku sem a otevře pole pro odkaz.
+  // Ve variantě B pole pro odkaz neexistuje, tak jen dá fokus do hlavního pole.
+  useEffect(() => {
+    const onLink = () => {
+      if (tab === 'stay') setLinkMode(true)
+      else {
+        setLinkRequested(true)
+        setTab('stay')
+      }
+      scrollToSection('hledani')
+      window.setTimeout(
+        () =>
+          document
+            .querySelector<HTMLInputElement>('#hledani [role="tabpanel"] input')
+            ?.focus({ preventScroll: true }),
+        500,
+      )
+    }
+    window.addEventListener(LINK_EVENT, onLink)
+    return () => window.removeEventListener(LINK_EVENT, onLink)
+  }, [tab, setTab])
 
   const submit = (place: Place) => (event: FormEvent) => {
     event.preventDefault()
@@ -227,13 +266,13 @@ export function SearchPanel({
     const columns =
       tab === 'car'
         ? 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto]'
-        : 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)_minmax(0,1fr)_auto]'
+        : 'lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.3fr)_minmax(0,1fr)_auto]'
 
     return (
       <div className={`grid grid-cols-2 items-start gap-3 ${columns}`}>
         <div className={`relative col-span-2 ${showRest ? 'lg:col-span-1' : 'lg:col-span-full'}`}>
           {tab === 'stay' &&
-            (isA ? (
+            (isCurrent ? (
               textField(
                 destination,
                 setDestination,
@@ -278,14 +317,17 @@ export function SearchPanel({
             </label>
           )}
           {main && tab === 'stay' && (
-            <Note id={isA ? 'searchA' : 'searchB'} className="absolute -top-3 right-2" />
+            <Note
+              id={isCurrent ? 'searchCurrent' : 'searchNew'}
+              className="absolute -top-3 right-2"
+            />
           )}
         </div>
 
         {showRest && (
           <>
             <div
-              className={`relative ${tab === 'car' ? 'col-span-2' : ''} lg:col-span-1 ${main && isA && tab === 'stay' ? 'animate-rise' : ''}`}
+              className={`relative ${tab === 'car' ? 'col-span-2' : ''} lg:col-span-1 ${main && isCurrent && tab === 'stay' ? 'animate-rise' : ''}`}
             >
               <PanelField
                 icon={CalendarDays}
@@ -305,7 +347,7 @@ export function SearchPanel({
                   }}
                 />
               </PanelField>
-              {main && !isA && tab === 'stay' && (
+              {main && !isCurrent && tab === 'stay' && (
                 <Note id="fields" className="absolute -top-3 right-2" />
               )}
             </div>
@@ -374,59 +416,35 @@ export function SearchPanel({
     </div>
   )
 
-  const TabIcon = TAB_ICONS[tab]
-
   return (
-    <div className="relative">
-      {/* Záložky kategorií. Ve variantách A i B stejné. */}
-      <div className="relative flex items-end">
-        <div role="tablist" aria-label={search.tabsLabel} className="flex">
-          {search.tabs.map((item) => {
-            const Icon = TAB_ICONS[item.id]
-            const selected = tab === item.id
-            return (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => setTab(item.id)}
-                className={`flex min-h-12 items-center gap-1.5 rounded-t-[14px] px-3 text-sm font-medium transition-colors sm:gap-2 sm:px-4 ${
-                  selected
-                    ? 'bg-white text-cobalt-deep'
-                    : 'bg-white/60 text-cobalt backdrop-blur hover:bg-white/80'
-                }`}
-              >
-                <Icon aria-hidden size={18} className={selected ? 'text-coral-600' : ''} />
-                <span className="sm:hidden">{item.short}</span>
-                <span className="max-sm:hidden">{item.label}</span>
-              </button>
-            )
-          })}
-        </div>
-        <Note id="tabs" className="absolute right-0 bottom-3 sm:static sm:mb-3 sm:ml-2" />
-        <Note id="row" className="ml-auto mb-3 max-lg:hidden" />
+    <div className="relative rounded-[20px] bg-white p-4 shadow-lift sm:p-5">
+      {/* Záložky kategorií jako segmenty uvnitř karty. Ve variantách A i B stejné. */}
+      <div className="flex items-center gap-2">
+        <CategorySwitch mode="tabs" value={tab} onChange={setTab} className="flex-1 sm:flex-none" />
+        <Note id="tabs" />
+        <Note id="row" className="ml-auto max-lg:hidden" />
       </div>
 
       <form
+        key={tab}
         role="tabpanel"
         aria-label={search.tabs.find((item) => item.id === tab)?.label}
         onSubmit={submit('main')}
         noValidate
-        className="rounded-tr-[16px] rounded-b-[16px] bg-white p-4 shadow-lift sm:p-5"
+        className={`mt-4 ${tabMotion}`}
       >
-        {tab === 'stay' && linkMode && !isA ? (
+        {tab === 'stay' && linkMode && !isCurrent ? (
           linkForm
         ) : (
           <>
-            {tab === 'stay' && isA && (
+            {tab === 'stay' && isCurrent && (
               <p className="mb-2 text-sm font-medium text-cobalt-deep">{search.combinedLabel}</p>
             )}
             {fieldsRow('main')}
           </>
         )}
 
-        {tab === 'stay' && !isA && !linkMode && (
+        {tab === 'stay' && !isCurrent && !linkMode && (
           <p className="mt-3 flex flex-wrap items-center gap-x-1 text-sm text-muted">
             {search.linkQuestion}
             <button
@@ -469,44 +487,45 @@ export function SearchPanel({
         )}
       </form>
 
-      {sticky && (
-        <div className="fixed inset-x-0 top-0 z-30 animate-rise bg-white/95 shadow-lift backdrop-blur">
-          {/* Desktop: celé hledání v jednom řádku, dá se vyhledávat odkudkoliv na stránce. */}
-          <form
-            onSubmit={submit('sticky')}
-            noValidate
-            aria-label={search.sticky.label}
-            className="mx-auto flex max-w-6xl items-start gap-3 px-4 py-3 max-lg:hidden"
+      {sticky &&
+        createPortal(
+          <div
+            className={`fixed inset-x-0 top-0 ${LAYER.sticky} animate-rise bg-white/95 shadow-lift backdrop-blur`}
           >
-            <span
-              className="flex min-h-12 shrink-0 items-center gap-2 rounded-[10px] bg-cream px-3 text-sm font-medium text-cobalt-deep"
-              title={search.tabs.find((item) => item.id === tab)?.label}
+            {/* Desktop: celé hledání v jednom řádku, dá se vyhledávat odkudkoliv na stránce. */}
+            <form
+              onSubmit={submit('sticky')}
+              noValidate
+              aria-label={search.sticky.label}
+              className="mx-auto flex max-w-6xl items-start gap-3 px-4 py-3 max-lg:hidden"
             >
-              <TabIcon aria-hidden size={18} className="text-coral-600" />
-              {search.tabs.find((item) => item.id === tab)?.short}
-            </span>
-            <div className="min-w-0 flex-1">{fieldsRow('sticky')}</div>
-            <Note id="sticky" className="mt-3" />
-          </form>
+              <CategorySwitch mode="bar" value={tab} onChange={setTab} className="shrink-0" />
+              <div key={tab} className={`min-w-0 flex-1 ${tabMotion}`}>
+                {fieldsRow('sticky')}
+              </div>
+              <Note id="sticky" className="mt-3" />
+            </form>
 
-          {/* Mobil a tablet: zkrácený řádek, který vrátí k panelu hledání. */}
-          <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2 lg:hidden">
-            <button
-              type="button"
-              onClick={backToSearch}
-              className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-full border border-line bg-white px-4 text-left text-sm text-cobalt-deep hover:border-cobalt/40"
-            >
-              <Search aria-hidden size={16} className="shrink-0 text-coral-600" />
-              <span className="truncate">{summary}</span>
-              <span className="ml-auto flex shrink-0 items-center gap-1 font-medium text-cobalt max-sm:sr-only">
-                <SquarePen aria-hidden size={14} />
-                {search.sticky.label}
-              </span>
-            </button>
-            <Note id="sticky" />
-          </div>
-        </div>
-      )}
+            {/* Mobil a tablet: přepínač kategorií a zkrácený řádek, který vrátí k panelu hledání. */}
+            <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2 lg:hidden">
+              <CategorySwitch mode="bar" value={tab} onChange={setTab} className="shrink-0" />
+              <button
+                type="button"
+                onClick={backToSearch}
+                className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-full border border-line bg-white px-4 text-left text-sm text-cobalt-deep hover:border-cobalt/40"
+              >
+                <Search aria-hidden size={16} className="shrink-0 text-coral-600" />
+                <span className="truncate">{summary}</span>
+                <span className="ml-auto flex shrink-0 items-center gap-1 font-medium text-cobalt max-sm:sr-only">
+                  <SquarePen aria-hidden size={14} />
+                  {search.sticky.label}
+                </span>
+              </button>
+              <Note id="sticky" />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }
