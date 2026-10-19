@@ -6,6 +6,9 @@ import { scrollToSection, usePrototype } from '../state'
 
 type NavItem = (typeof header.nav)[number]
 
+// Prototyp je v kořeni webu, logo vede na jeho začátek.
+const HOME = import.meta.env.BASE_URL
+
 export function Header() {
   const { searchTab, setSearchTab, notify } = usePrototype()
   const [open, setOpen] = useState(false)
@@ -45,7 +48,7 @@ export function Header() {
   return (
     <header className="relative z-30 bg-white shadow-[0_1px_0_var(--color-line)]">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4 lg:h-[72px]">
-        <a href={`${import.meta.env.BASE_URL}prototyp/`} aria-label={header.homeLabel}>
+        <a href={HOME} aria-label={header.homeLabel}>
           <Logo compact />
         </a>
 

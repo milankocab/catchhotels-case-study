@@ -1,5 +1,5 @@
 /*
- * Texty klikacího prototypu na adrese /prototyp/. Texty případové studie jsou v content.ts.
+ * Texty klikacího prototypu na hlavní adrese /. Texty případové studie jsou v content.ts.
  *
  * Jak upravovat:
  * - Text měňte přímo v uvozovkách. Platí stejná pravidla stylu jako v content.ts.
@@ -11,7 +11,7 @@ export type SearchTab = 'stay' | 'car' | 'insurance'
 
 /** Pruh s přepínačem nahoře na obou stránkách. Žádný další text. */
 export const switcher = {
-  label: 'Přepnout mezi případovou studií a prototypem',
+  label: 'Přepnout mezi prototypem a případovou studií',
   study: 'Případová studie',
   prototype: 'Prototyp',
 }

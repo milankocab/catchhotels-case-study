@@ -1,11 +1,11 @@
 // Kontrola buildu před nasazením. Hlídá dvě chyby, které vedou k bílé stránce na GitHub Pages.
 // 1. HTML odkazuje na zdrojový /src/*.tsx (nasazený zdroj místo buildu).
 // 2. Skripty a styly se načítají z kořene domény místo z podsložky repozitáře.
-// Kontroluje obě stránky, případovou studii i prototyp.
+// Kontroluje obě stránky, prototyp i případovou studii.
 import { existsSync, readFileSync } from 'node:fs'
 
 const BASE = '/catchhotels-case-study/'
-const PAGES = ['index.html', 'prototyp/index.html']
+const PAGES = ['index.html', 'pripadova-studie/index.html']
 const errors = []
 let checked = 0
 

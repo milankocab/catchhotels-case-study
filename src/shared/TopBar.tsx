@@ -4,8 +4,8 @@ type Page = 'study' | 'prototype'
 
 // Odkazy počítají s base z vite.config.ts, takže fungují lokálně i na GitHub Pages.
 const HREF: Record<Page, string> = {
-  study: import.meta.env.BASE_URL,
-  prototype: `${import.meta.env.BASE_URL}prototyp/`,
+  prototype: import.meta.env.BASE_URL,
+  study: `${import.meta.env.BASE_URL}pripadova-studie/`,
 }
 
 /** Tmavý pruh nahoře na obou stránkách. Nepatří k navrhovanému webu, obsahuje jen přepínač. */
@@ -14,7 +14,7 @@ export function TopBar({ current }: { current: Page }) {
     <nav aria-label={switcher.label} className="bg-cobalt-deep">
       <div className="mx-auto flex max-w-6xl justify-center px-4 py-1.5">
         <ul className="flex rounded-full bg-white/10 p-1">
-          {(['study', 'prototype'] as const).map((page) => (
+          {(['prototype', 'study'] as const).map((page) => (
             <li key={page}>
               <a
                 href={HREF[page]}

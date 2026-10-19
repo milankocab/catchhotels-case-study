@@ -12,12 +12,13 @@ const BASE = '/catchhotels-case-study/'
 export default defineConfig({
   base: BASE,
   plugins: [react(), tailwindcss()],
-  // Dvě stránky. Případová studie v kořeni a klikací prototyp na adrese /prototyp/.
+  // Dvě stránky. Klikací prototyp v kořeni a případová studie na adrese /pripadova-studie/.
+  // Stará adresa /prototyp/ přesměrovává do kořene (public/prototyp/index.html).
   build: {
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
-        prototyp: fileURLToPath(new URL('./prototyp/index.html', import.meta.url)),
+        studie: fileURLToPath(new URL('./pripadova-studie/index.html', import.meta.url)),
       },
     },
   },

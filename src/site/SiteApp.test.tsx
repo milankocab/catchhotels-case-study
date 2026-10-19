@@ -12,7 +12,10 @@ describe('Prototyp úvodní stránky', () => {
       'aria-current',
       'page',
     )
-    expect(within(bar).getByRole('link', { name: switcher.study })).toHaveAttribute('href', '/')
+    expect(within(bar).getByRole('link', { name: switcher.study })).toHaveAttribute(
+      'href',
+      '/pripadova-studie/',
+    )
   })
 
   it('upozornění o nezávislosti je v patičce', () => {
