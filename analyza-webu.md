@@ -285,6 +285,7 @@ Návrh je ukazatel kroků a krátké „Co bude dál“ u tlačítka.
 | Pole | jedno pole pro místo i odkaz jako dnes, jen v novém vzhledu | pole jen pro místo s našeptávačem hotelů (A), odkaz „Máte vybraný hotel?“ (B) a rozpoznání odkazu (E) |
 | Termín a osoby | podle dnešního chování | vidět hned |
 | Sekce D a rozšíření F | ano | ano |
+| Rozložení na desktopu | jeden řádek | jeden řádek |
 
 Varianta A respektuje důvody, proč je web dnes postavený tak, jak je. Ty neznám a nechci je předem zahodit.
 
@@ -307,6 +308,10 @@ Varianta A respektuje důvody, proč je web dnes postavený tak, jak je. Ty nezn
 - **Vedlejší metriky.** Kolik lidí opustí objednávku a tržba na návštěvu.
 - **Ochranné metriky.** Dotazy na podporu kvůli ceně a podíl stornovaných objednávek.
 - **Právní otázka.** Pravidla EU pro uvádění celkové ceny včetně nevyhnutelných poplatků bych nechal posoudit právníkem.
+
+### Test 3. Hledání v jednom řádku (návrh na později)
+
+Většina konkurentů má na desktopu všechna pole vyhledávání v jednom řádku. Lidé ten vzor znají, a proto ho prototyp používá v obou variantách testu 1. Je to ale převzatý vzor, ne ověřená věc. Po testu 1 bych porovnal jeden řádek s poli pod sebou. Hlavní metrikou by byl podíl návštěv, které začnou hledat, a ochrannou metrikou konverze po zaplacenou objednávku. Test se týká jen desktopu, mobil má pole vždy pod sebou.
 
 ### Kolik dat testy potřebují
 
@@ -404,9 +409,13 @@ Pořadí shora dolů.
    - Pojištění má oblast (Česko, Evropa, svět), termín a počet osob.
 
    Záložky jsou stejné v obou variantách testu 1, aby test nezkreslily.
+
+   Na desktopu jsou všechna pole v jednom řádku (viz test 3). Když panel odjede z obrazovky, připne se nahoru. Na desktopu jako celé hledání v jednom řádku, takže jde hledat kdykoliv bez posouvání. Na mobilu jako zkrácený řádek, který vrátí k panelu.
 2. **Nadpis o celé cestě.** Ve smyslu „Celá dovolená za benefity. Ubytování, auto i pojištění.“ Pod ním podporované benefitní programy.
+
+   Vedle nadpisu je karta **Doplňkové služby** s cestovním pojištěním a půjčením auta, orientační cenou a fotkou. Doplňky tak člověk vidí už v první obrazovce, ještě než začne hledat. Klik na doplněk přepne vyhledávání na jeho záložku. Na mobilu jsou to dvě dlaždice pod perexem. Ceny v prototypu jsou fiktivní.
 3. **Oblíbené destinace s doporučeným doplňkem.** Viz 8.4.
-4. **Jedny benefity na celou cestu.** Tři karty kategorií s ikonou, jednou větou a cenou od. Každá karta má poznámku, že v reálném webu vede na vlastní stránku kategorie.
+4. ~~**Jedny benefity na celou cestu.**~~ Samostatné karty kategorií jsem při stavbě vypustil. Kategorie už ukazují záložky vyhledávání a karta Doplňkové služby v úvodu, třetí opakování by stránku jen prodloužilo. Odkaz na stránku kategorie má každá karta v trip builderu („Více o kategorii“).
 5. **Trip builder.** Viz 8.5.
 6. **Dobré vědět před cestou.** Viz 8.6.
 7. **Interaktivní průvodce.** Tři cesty, rezervace na webu, rozšíření do prohlížeče a přidání auta a pojištění.
@@ -414,7 +423,7 @@ Pořadí shora dolů.
 9. **Blok pro HR** s odkazem na B2B web.
 10. **FAQ** s kategoriemi Obecné, Platba, Auto a Pojištění.
 11. **Patička** s nastavením cookies.
-12. **Chat** jako plovoucí tlačítko vpravo dole, po otevření ukázka konverzace s AI asistentem.
+12. **Chat** jako plovoucí tlačítko vpravo dole, po otevření ukázka konverzace s AI asistentem. Nabízí tři časté dotazy s předpřipravenou odpovědí a říká, kdy přijde odpověď mimo provozní dobu.
 
 ### 8.4 Oblíbené destinace s doporučeným doplňkem
 
@@ -425,6 +434,7 @@ Karty destinací (fotka, název, cena od) dostanou malý štítek s doplňkem, k
 | Krkonoše | Na hory se hodí auto | horské chaty bývají hůř dostupné vlakem |
 | Chorvatsko | Do zahraničí s pojištěním | léčebné výlohy v zahraničí nehradí česká pojišťovna celé |
 | Praha | bez štítku | ve městě auto ani pojištění člověk obvykle nepotřebuje |
+| Rakouské Alpy | Na lyže s pojištěním | zahraničí a hory, kde se při lyžování snadno stane úraz |
 
 Po kliknutí na kartu se otevře obrazovka 2 s ubytováním v dané destinaci a doporučený doplněk je **zvýrazněný, ale nezaškrtnutý**. Předem zaškrtnutý doplněk by byl manipulativní a stejný problém, jaký vytýkám u souhlasu s marketingem.
 
@@ -450,7 +460,8 @@ Nabídka je tak cílená podle místa, ne obecná. Hypotéza je, že cílená na
 
 **Jak vypadá na mobilu**
 - Časová osa je svislá, karty pod sebou se spojovací čárou vlevo.
-- Souhrn s pruhem je připnutý na spodní okraj sekce, aby byl vidět při přidávání.
+- Souhrn s pruhem je hned pod časovou osou. Připnutý na spodní okraj by se na mobilu tloukl s tlačítky chatu a ovládání prototypu, a karty jsou krátké, takže souhrn je stejně blízko.
+- Na desktopu je souhrn vodorovný pruh pod časovou osou, aby měly tři karty dost místa.
 
 **Přístupnost.** Všechny prvky jsou tlačítka ovladatelná klávesnicí. Změna součtu se ohlásí čtečce obrazovky a pro lidi s vypnutými animacemi se karty vyplní bez animace.
 
