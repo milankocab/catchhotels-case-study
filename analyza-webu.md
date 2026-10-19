@@ -384,7 +384,7 @@ Prvními kandidáty jsou cestovní pojištění a půjčení auta. Navazují na 
 
 ### 8.2 Přepínání mezi případovou studií a prototypem
 
-Úplně nahoře je úzký tmavý pruh, který nepatří k navrhovanému webu. Obsahuje jen přepínač **Případová studie | Prototyp**, žádný další text. Je vidět na každé obrazovce, takže je vždycky jasné, kde člověk je a jak se vrátí.
+Úplně nahoře je úzký tmavý pruh, který nepatří k navrhovanému webu. Obsahuje jen přepínač **Prototyp | Případová studie**, žádný další text. Je vidět na každé obrazovce, takže je vždycky jasné, kde člověk je a jak se vrátí.
 
 Upozornění o nezávislosti a o fiktivních datech bude v prototypu jen jako krátký řádek v patičce.
 
@@ -446,7 +446,7 @@ Nabídka je tak cílená podle místa, ne obecná. Hypotéza je, že cílená na
 
 **Jak vypadá na desktopu**
 - Nahoře jsou výběrové štítky s ukázkovými cestami **Víkend na horách**, **Týden u moře** a **Prodloužený víkend ve městě**.
-- Pod nimi je vodorovná časová osa se třemi kartami spojenými čárou, Auto, Ubytování a Pojištění.
+- Pod nimi jsou vedle sebe tři karty v pořadí cesty, Auto, Ubytování a Pojištění. Spojovací čáru jsem po kontrole vypustil, karty jsou čitelné i bez ní.
 - Ubytování je vyplněné ukázkovým pobytem s fiktivním názvem, místem, termínem a cenou.
 - Auto a pojištění jsou na začátku prázdné karty s přerušovaným okrajem a tlačítkem „Přidat auto od 1 900 Kč“.
 - Vpravo je souhrn s polem **„Kolik máte na benefitech?“**, celkovou cenou a pruhem, který ukazuje, jakou část cesty benefity pokryjí. Pokud pokryjí všechno, pruh je celý zelený s textem „Zaplatíte celé z benefitů“. Jinak ukáže „Doplatíte 1 200 Kč“.
@@ -459,7 +459,7 @@ Nabídka je tak cílená podle místa, ne obecná. Hypotéza je, že cílená na
 - Každá karta má odkaz „Více o kategorii“ s poznámkou, že v reálném webu vede na stránku kategorie.
 
 **Jak vypadá na mobilu**
-- Časová osa je svislá, karty pod sebou se spojovací čárou vlevo.
+- Karty jsou pod sebou.
 - Souhrn s pruhem je hned pod časovou osou. Připnutý na spodní okraj by se na mobilu tloukl s tlačítky chatu a ovládání prototypu, a karty jsou krátké, takže souhrn je stejně blízko.
 - Na desktopu je souhrn vodorovný pruh pod časovou osou, aby měly tři karty dost místa.
 
@@ -489,7 +489,7 @@ Konkrétní podmínky pojištění a půjčení bych formuloval s partnery. V pr
 
 ### 8.7 Technická rozhodnutí
 
-- **Samostatná adresa.** Prototyp je druhá stránka projektu na adrese `/catchhotels-case-study/prototyp/`. Kotvy v případové studii se tak nepletou s prototypem a odkaz jde poslat přímo.
+- **Samostatná adresa.** Prototyp je hlavní stránka projektu na adrese `/catchhotels-case-study/`, případová studie je na `/catchhotels-case-study/pripadova-studie/`. Kotvy v případové studii se tak nepletou s prototypem a na obě stránky jde poslat přímý odkaz.
 - **Ovládání prototypu.** Vlevo dole je malý panel s přepínači Poznámky a Vyhledávání A nebo B. Výchozí je varianta A, tedy navržená úprava. Vpravo dole je chat.
 - **Poznámky „proč“.** Otevřená je vždy jen jedna a leží nad vším ostatním. Standardně se ukáže pod číslem. Když se tam nevejde, ukáže se tam, kde je místo, a nikdy neuteče mimo obrazovku. Čísla jdou po stránce shora dolů a zleva doprava a počítají jen to, co je opravdu vidět, takže v řadě nejsou mezery na mobilu ani ve variantě B. Z kterého bodu analýzy změna vychází, je napsané až v otevřené poznámce, třeba „Úvodní stránka, bod 1.1“.
 - **Pohyb.** Sekce a karty se při scrollování plynule objeví, hero naskočí po načtení. Odpovědi v FAQ a v Dobré vědět se plynule rozbalí. Při přepnutí Ubytování, Auta a Pojištění se zvýraznění posune a pole přijedou ze strany, kam se přepíná. Stejný přepínač je i v připnuté liště, na mobilu jako tři ikony. Částky v trip builderu se dopočítají místo skoku. Kdo má v systému omezený pohyb, uvidí vše bez animací.
@@ -499,6 +499,62 @@ Konkrétní podmínky pojištění a půjčení bych formuloval s partnery. V pr
 `TODO-MILAN: ověřit u partnerů, jestli platí jeden bod jedna koruna`
 
 ---
+
+### 8.8 Obrazovka 2. Nabídka doplňků po výběru ubytování
+
+> **Člověk má vybraný pobyt. Jedním pohledem vidí, co se k cestě hodí, kolik to stojí z benefitů, a může to stejně snadno přeskočit.**
+
+**Kde v procesu je.** Dnes jde po detailu hotelu rovnou formulář „Informace o vás“ s rekapitulací. Obrazovka 2 je nový krok mezi nimi. Odpovídá variantě A z případové studie (po výběru ubytování, před košíkem). Je to nejvýraznější místo nabídky, ale taky nejrizikovější pro konverzi ubytování, proto je celý návrh postavený tak, aby krok šel přeskočit a nic nezdržoval.
+
+**Odkud se na ni přijde v prototypu**
+
+| Odkud | Co je předvyplněné |
+| --- | --- |
+| Hledání ubytování | fiktivní hotel podle zadaného místa, termín a osoby z hledání |
+| Karta destinace | hotel v destinaci, doporučený doplněk zvýrazněný, ale nezaškrtnutý (8.4) |
+| Trip builder „Naplánovat tuto cestu“ | doplňky, které člověk v trip builderu přidal, a zůstatek benefitů |
+| Hledání auta nebo pojištění bez ubytování | mimo prototyp, jen poznámka, že v reálném webu vede na stránku kategorie |
+
+Výsledky vyhledávání a detail hotelu prototyp přeskakuje. Poznámka u shrnutí pobytu odkazuje na jejich zjištění (2.1 až 3.7).
+
+**Co na obrazovce je, shora dolů**
+
+1. **Ukazatel kroků.** Ubytování, Doplňky, Košík a platba, Hotovo. Dnes člověk neví, kde v procesu je (4.7).
+2. **Shrnutí pobytu.** Fotka, název, místo, termín, osoby, pokoj, storno podmínky a cena včetně servisního poplatku (2.1, 4.1). Odkaz „Změnit“ vrátí na úvodní stránku.
+3. **Nadpis a jedna věta.** „Chcete k cestě něco přidat? Termín a osoby už známe. Doplňky jsou nepovinné.“
+4. **Cestovní pojištění.**
+   - Oblast, termín a počet osob jsou převzaté z pobytu a vidět jako jeden řádek, jde je upravit.
+   - Tři varianty jako karty (Základ, Standard, Plus) a čtvrtá volba **Bez pojištění**. Výchozí není vybrané nic.
+   - Každá karta má cenu za celou cestu pro všechny osoby, tři hlavní krytí a „Co přesně pokrývá“ jako rozbalovací část.
+   - U zahraničí má štítek **Doporučujeme** varianta Standard, u Česka žádná. Doporučení vysvětlí jedna věta, třeba „Léčebné výlohy v zahraničí nehradí česká pojišťovna celé“.
+   - U nevratné sazby ubytování bych ukázal větu, že storno pojištění ve variantě Plus kryje zrušení pobytu. Navazuje na 3.3, cena flexibility je pak vidět na jednom místě. Je to hypotéza a hodí se na test.
+5. **Půjčení auta.**
+   - Převzetí a vrácení u hotelu nebo na letišti, dny podle termínu pobytu.
+   - Dvě kategorie (Malé auto, Rodinné auto) a volba **Bez auta**.
+   - Jasně napsaná kauce. Půjčovny ji obvykle blokují na kreditní kartě a benefity ji nepokryjí. Bez toho by člověk zjistil až na místě, že potřebuje kartu, a to je horší než doplněk nekoupit.
+   - U Prahy je sekce auta sbalená do jednoho řádku „Potřebujete auto? Přidat“. Ve městě ho většina lidí nepotřebuje (8.4).
+6. **Souhrn platby.** Ubytování, vybrané doplňky, celkem, kolik zaplatíte z benefitů a kolik doplatíte kartou. Pruh pokrytí stejný jako v trip builderu, zůstatek jde upravit. Na desktopu je souhrn vpravo a jede s obrazovkou. Na mobilu je dole připnutá lišta s celkovou cenou, doplatkem a tlačítkem a po klepnutí se rozbalí rozpis.
+7. **Tlačítka.** Hlavní „Pokračovat do košíku“. Vedle stejně velké sekundární „Pokračovat bez doplňků“, ne schovaný šedý odkaz. Když člověk nic nevybral, hlavní tlačítko se jmenuje „Pokračovat bez doplňků“ a druhé zmizí.
+
+**Zásady**
+- Nic není předem zaškrtnuté. Stejný důvod jako u souhlasu s marketingem (4.4).
+- Ceny jsou vždy za celou cestu a z nich hned vidět dopad na benefity. Jednotka „za den“ jen jako pomocný údaj.
+- Všechny volby jsou skupiny přepínačů ovladatelné klávesnicí, změna souhrnu se ohlásí čtečce.
+- Obrazovka používá stejné komponenty jako úvodní stránka (karty, rozbalovací části, poznámky „proč“, plynulé přepočítání částek).
+- Partneři, pojistné podmínky i ceny jsou fiktivní. Odkaz na podmínky je jen poznámka.
+
+**Předpoklad, na kterém obrazovka stojí.** Doplňky jde zaplatit benefity (kapitola 7, klíčová otázka). Obrazovka to říká štítkem „Zaplatíte benefity“ a poznámka u něj přizná, že jde o předpoklad.
+
+**Co bych měřil**
+- Podíl rezervací s aspoň jedním doplňkem, zvlášť pojištění a auto.
+- Kolik lidí krok přeskočí a jak dlouho na něm jsou.
+- Ochranná metrika je konverze ubytování od detailu po zaplacení proti dnešnímu procesu bez kroku.
+
+**Návrh testu 4. Kde nabídnout doplňky.** Varianta A je samostatný krok (tato obrazovka), varianta B je stejná nabídka zkrácená v košíku. Rozhoduje výnos z doplňků na rezervaci při nezhoršené konverzi ubytování. Na prototypu by šlo variantu přepínat stejně jako u vyhledávání.
+
+**Technicky.** Obrazovka bude součástí stejné stránky prototypu s adresou `#doplnky`, aby fungovalo tlačítko zpět v prohlížeči a odkaz šel poslat. Výběr se drží ve stavu prototypu a přenese se do košíku.
+
+`TODO-MILAN: ověřit, jestli půjčovny u partnerů chtějí kauci na kreditní kartě a jak vysokou`
 
 ## 9. Otázky na první týden
 
@@ -517,7 +573,7 @@ Konkrétní podmínky pojištění a půjčení bych formuloval s partnery. V pr
 
 1. Technický plán prototypu (stávající kód, design manuál, přepínání mezi studií a prototypem).
 2. Postavit a dokončit úvodní stránku prototypu.
-3. Analýza obrazovky 2, nabídka doplňků.
+3. Analýza obrazovky 2, nabídka doplňků (8.8).
 4. Analýza obrazovky 3, košík a platba, včetně potvrzení.
 5. Rozhodnout, co se stane s prototypem, který je dnes přímo ve stránce případové studie.
 6. Postavit obrazovky 2 a 3 a napojit celý průchod.
