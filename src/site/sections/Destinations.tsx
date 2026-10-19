@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { CarFront, ShieldCheck } from 'lucide-react'
 import { czk, destinations } from '../../content-prototyp'
 import chorvatsko from '../assets/photos/chorvatsko.webp'
@@ -15,7 +16,7 @@ export function Destinations() {
   const { notify } = usePrototype()
   return (
     <section id="inspirace" aria-labelledby="destinace-nadpis" className="scroll-mt-20 px-4 pt-14">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl" data-reveal>
         <div className="flex items-center gap-2">
           <h2 id="destinace-nadpis" className="text-2xl font-bold sm:text-3xl">
             {destinations.title}
@@ -25,10 +26,15 @@ export function Destinations() {
         <p className="mt-2 max-w-2xl text-ink">{destinations.lead}</p>
 
         <ul className="-mx-4 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
-          {destinations.items.map((item) => {
+          {destinations.items.map((item, index) => {
             const TagIcon = item.addon ? TAG_ICONS[item.addon] : null
             return (
-              <li key={item.id} className="w-[78%] shrink-0 snap-start sm:w-auto">
+              <li
+                key={item.id}
+                data-reveal
+                style={{ '--reveal-delay': `${index * 90}ms` } as CSSProperties}
+                className="w-[78%] shrink-0 snap-start sm:w-auto"
+              >
                 <button
                   type="button"
                   onClick={() => notify(destinations.next(item.name))}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { BedDouble, CarFront, Check, Minus, Plus, ShieldCheck, Sparkles } from 'lucide-react'
 import {
   czk,
@@ -8,6 +8,7 @@ import {
   type TripPart,
 } from '../../content-prototyp'
 import { Note } from '../components/Note'
+import { useCountUp } from '../motion'
 import { usePrototype } from '../state'
 import { tripTotals, type Preset } from './trip'
 
@@ -109,6 +110,8 @@ export function TripBuilder() {
   const preset = copy.presets.find((item) => item.id === presetId) ?? copy.presets[0]
   const balance = Number(balanceText) || 0
   const { total, fromBenefits, topUp, left } = tripTotals(preset, added, balance)
+  const shownTotal = useCountUp(total)
+  const shownFromBenefits = useCountUp(fromBenefits)
   const share = total > 0 ? fromBenefits / total : 0
 
   const choosePreset = (id: string) => {
@@ -122,7 +125,7 @@ export function TripBuilder() {
 
   return (
     <section id="cesta" aria-labelledby="cesta-nadpis" className="scroll-mt-20 px-4 pt-16">
-      <div className="mx-auto max-w-6xl rounded-[24px] bg-cream/60 p-5 sm:p-8">
+      <div className="mx-auto max-w-6xl rounded-[24px] bg-cream/60 p-5 sm:p-8" data-reveal>
         <div className="flex items-center gap-2">
           <h2 id="cesta-nadpis" className="text-2xl font-bold sm:text-3xl">
             {copy.title}
@@ -151,18 +154,14 @@ export function TripBuilder() {
         </div>
 
         <div className="mt-6 space-y-6">
-          {/* Časová osa. Na desktopu vodorovně, na mobilu svisle se spojovací čárou vlevo. */}
-          <ol className="relative grid gap-4 max-lg:pl-6 lg:grid-cols-3">
-            <span
-              aria-hidden
-              className="absolute top-0 bottom-0 left-2 w-0.5 bg-cobalt/20 lg:top-[38px] lg:right-8 lg:bottom-auto lg:left-8 lg:h-0.5 lg:w-auto"
-            />
-            {PARTS.map((part) => (
-              <li key={`${preset.id}-${part}`} className="relative">
-                <span
-                  aria-hidden
-                  className="absolute top-[34px] -left-[22px] size-3 rounded-full border-2 border-cobalt bg-cream lg:hidden"
-                />
+          {/* Části cesty v pořadí, jak jdou po sobě. Na desktopu vedle sebe, na mobilu pod sebou. */}
+          <ol className="grid gap-4 lg:grid-cols-3">
+            {PARTS.map((part, index) => (
+              <li
+                key={`${preset.id}-${part}`}
+                data-reveal
+                style={{ '--reveal-delay': `${index * 90}ms` } as CSSProperties}
+              >
                 <PartCard
                   part={part}
                   preset={preset}
@@ -175,6 +174,7 @@ export function TripBuilder() {
 
           <aside
             aria-labelledby="souhrn-nadpis"
+            data-reveal
             className="grid gap-5 rounded-(--radius-card) bg-white p-5 shadow-lift lg:grid-cols-[260px_minmax(0,1fr)_auto] lg:items-end lg:gap-8"
           >
             <h3 id="souhrn-nadpis" className="font-heading text-lg font-semibold lg:sr-only">
@@ -203,11 +203,13 @@ export function TripBuilder() {
             <dl className="space-y-1.5 text-sm" aria-live="polite">
               <div className="flex justify-between">
                 <dt className="text-muted">{copy.total}</dt>
-                <dd className="font-semibold text-cobalt-deep">{czk(total)}</dd>
+                <dd className="font-semibold text-cobalt-deep tabular-nums">{czk(shownTotal)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted">{copy.fromBenefits}</dt>
-                <dd className="font-semibold text-positive">{czk(fromBenefits)}</dd>
+                <dd className="font-semibold text-positive tabular-nums">
+                  {czk(shownFromBenefits)}
+                </dd>
               </div>
               <div
                 className="mt-2 flex h-3 overflow-hidden rounded-full bg-coral-light"
