@@ -1,0 +1,27 @@
+# Závislosti a build. Vznikají z package.json a npm run build, do repozitáře nepatří.
+node_modules
+dist
+*.tsbuildinfo
+.vite
+coverage
+
+# Lokální nastavení a tajné hodnoty
+.env
+.env.*
+!.env.example
+*.local
+
+# Logy
+*.log
+npm-debug.log*
+
+# Systém a editory
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.swp
+
+# Osobní nastavení Claude Code (oprávnění, lokální poznámky)
+.claude/settings.local.json

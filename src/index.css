@@ -1,0 +1,112 @@
+@import 'tailwindcss';
+
+/*
+ * Barvy a fonty podle brand/design-manual.md (vlastní koncept, ne značka CatchHotels).
+ * Odchylky kvůli kontrastu WCAG AA:
+ * - Korálová #F16C5B má s bílým textem jen 3 : 1. Tlačítka proto používají coral-600 (4,8 : 1).
+ *   Původní korálová zůstává pro ikony, štítky a dekor.
+ * - Sekundární text #71879E má na pozadí 3,6 : 1. Používám tmavší muted #55697F (5,5 : 1).
+ */
+@theme {
+  --color-cobalt: #075b96;
+  --color-cobalt-deep: #033d64;
+  --color-azure: #62c9f0;
+  --color-azure-light: #e3f4fb;
+  --color-coral: #f16c5b;
+  --color-coral-600: #c94434;
+  --color-coral-700: #b83c2e;
+  --color-coral-light: #fde8e4;
+  --color-amber: #ffb33d;
+  --color-amber-light: #fff4e0;
+  --color-amber-ink: #8a5a12;
+  --color-cream: #fff0d9;
+  --color-page: #fefcf7;
+  --color-surface: #fdfcf9;
+  --color-surface-warm: #fbf6f1;
+  --color-line: #e6e9ee;
+  --color-ink: #0f4273;
+  --color-muted: #55697f;
+  --color-positive: #1d7a52;
+  --color-positive-light: #e4f4ec;
+
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Font loga podle zdroje v Claude Design. Jinde se nepoužívá. */
+  --font-logo: 'Outfit', system-ui, sans-serif;
+
+  --radius-card: 14px;
+  --shadow-soft: 0 4px 16px rgba(7, 61, 100, 0.08);
+  --shadow-lift: 0 12px 32px rgba(7, 61, 100, 0.12);
+  --shadow-cta: 0 4px 12px rgba(201, 68, 52, 0.25);
+
+  --animate-rise: rise 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes rise {
+    0% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    color: var(--color-cobalt-deep);
+    letter-spacing: -0.01em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-cobalt);
+    outline-offset: 2px;
+  }
+
+  button,
+  [role='button'],
+  label:has(input[type='checkbox'], input[type='radio']),
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='range'] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+/* Posuvník v barvách konceptu. Palec má 24 px, dotyková plocha celého pole je 44 px. */
+input[type='range'] {
+  accent-color: var(--color-cobalt);
+  height: 2.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+}
