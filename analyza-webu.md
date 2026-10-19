@@ -313,6 +313,20 @@ Varianta A je navržená úprava a v prototypu se ukazuje jako výchozí. Varian
 
 Většina konkurentů má na desktopu všechna pole vyhledávání v jednom řádku. Lidé ten vzor znají, a proto ho prototyp používá v obou variantách testu 1. Je to ale převzatý vzor, ne ověřená věc. Po testu 1 bych porovnal jeden řádek s poli pod sebou. Hlavní metrikou by byl podíl návštěv, které začnou hledat, a ochrannou metrikou konverze po zaplacenou objednávku. Test se týká jen desktopu, mobil má pole vždy pod sebou.
 
+### Test 4. Kde nabídnout doplňky (až s doplňky v nabídce)
+
+| | Varianta A (navržená) | Varianta B |
+| --- | --- | --- |
+| Kde | samostatný krok po výběru ubytování (obrazovka 2) | zkrácená nabídka v košíku, žádný krok navíc |
+| Pojištění | tři varianty a Bez pojištění | doporučená varianta jedním klikem, ostatní po rozbalení |
+| Auto | dvě kategorie a Bez auta | jedna kategorie jedním klikem, druhá po rozbalení |
+
+Obě varianty mají po zaplacení stejnou nabídku doplňku, který člověk nevybral.
+
+- **Hlavní metrika.** Výnos z doplňků na jednu návštěvu detailu hotelu.
+- **Vedlejší metriky.** Podíl rezervací s doplňkem a podíl lidí, kteří krok přeskočí.
+- **Ochranná metrika.** Konverze ubytování od detailu po zaplacení. Varianta, která prodá víc doplňků, ale ztratí ubytování, nevyhrává.
+
 ### Kolik dat testy potřebují
 
 30 tisíc rezervací ročně je zhruba 2 500 měsíčně. Při rozdělení 50 na 50 dostane každá varianta za čtyři týdny přibližně 1 150 objednávek. Spolehlivě tak odhalíme jen změny zhruba od 10 až 12 % relativně. Je to orientační odhad, přesný bych spočítal kalkulačkou velikosti vzorku podle skutečné konverze. Menší rozdíly vyžadují delší test, a proto testy pouštím postupně, ne naráz.
@@ -531,7 +545,7 @@ Výsledky vyhledávání a detail hotelu prototyp přeskakuje. Poznámka u shrnu
 5. **Půjčení auta.**
    - Převzetí a vrácení u hotelu nebo na letišti, dny podle termínu pobytu.
    - Dvě kategorie (Malé auto, Rodinné auto) a volba **Bez auta**.
-   - Jasně napsaná kauce. Půjčovny ji obvykle blokují na kreditní kartě a benefity ji nepokryjí. Bez toho by člověk zjistil až na místě, že potřebuje kartu, a to je horší než doplněk nekoupit.
+   - Jasně napsaná kauce. Při půjčení auta je běžné, že půjčovna při převzetí zablokuje na kreditní kartě řidiče částku pro případ škody nebo chybějícího paliva a po vrácení ji uvolní. Debetní karty často nebere a výši určuje sama. Benefity kauci nepokryjí, protože nejde o platbu, ale o blokaci. Na obrazovce bude jedna věta bez konkrétní částky: „Při převzetí půjčovna zablokuje kauci na kreditní kartě řidiče. Po vrácení auta ji uvolní.“ Bez toho by člověk zjistil až na místě, že kartu potřebuje, a to je horší než doplněk nekoupit.
    - U Prahy je sekce auta sbalená do jednoho řádku „Potřebujete auto? Přidat“. Ve městě ho většina lidí nepotřebuje (8.4).
 6. **Souhrn platby.** Ubytování, vybrané doplňky, celkem, kolik zaplatíte z benefitů a kolik doplatíte kartou. Pruh pokrytí stejný jako v trip builderu, zůstatek jde upravit. Na desktopu je souhrn vpravo a jede s obrazovkou. Na mobilu je dole připnutá lišta s celkovou cenou, doplatkem a tlačítkem a po klepnutí se rozbalí rozpis.
 7. **Tlačítka.** Hlavní „Pokračovat do košíku“. Vedle stejně velké sekundární „Pokračovat bez doplňků“, ne schovaný šedý odkaz. Když člověk nic nevybral, hlavní tlačítko se jmenuje „Pokračovat bez doplňků“ a druhé zmizí.
@@ -550,11 +564,64 @@ Výsledky vyhledávání a detail hotelu prototyp přeskakuje. Poznámka u shrnu
 - Kolik lidí krok přeskočí a jak dlouho na něm jsou.
 - Ochranná metrika je konverze ubytování od detailu po zaplacení proti dnešnímu procesu bez kroku.
 
-**Návrh testu 4. Kde nabídnout doplňky.** Varianta A je samostatný krok (tato obrazovka), varianta B je stejná nabídka zkrácená v košíku. Rozhoduje výnos z doplňků na rezervaci při nezhoršené konverzi ubytování. Na prototypu by šlo variantu přepínat stejně jako u vyhledávání.
+**Test 4. Kde nabídnout doplňky.** Popsaný v kapitole 5. V prototypu jde varianty přepínat v ovládání prototypu, stejně jako u vyhledávání. Ve variantě B se obrazovka 2 přeskočí a zkrácená nabídka je v košíku (8.9).
+
+**Rozhodnuto.** Pojištění má tři varianty. Test 4 jde v prototypu přepínat.
 
 **Technicky.** Obrazovka bude součástí stejné stránky prototypu s adresou `#doplnky`, aby fungovalo tlačítko zpět v prohlížeči a odkaz šel poslat. Výběr se drží ve stavu prototypu a přenese se do košíku.
 
-`TODO-MILAN: ověřit, jestli půjčovny u partnerů chtějí kauci na kreditní kartě a jak vysokou`
+### 8.9 Obrazovka 3. Košík s rozdělením platby a potvrzení
+
+> **Člověk vidí, co platí, kolik z benefitů a kolik kartou, a nemusí nic počítat ani hledat.**
+
+Dnes je to stránka „Informace o vás“ s rekapitulací a pod ní „Způsob platby“. Obrazovka 3 je její přepracovaná verze. Řeší zjištění 4.1 až 4.7 a přidává to, co doplňky do objednávky přinášejí.
+
+**Rozložení.** Na desktopu vlevo formulář, vpravo rekapitulace, která jede se stránkou. Na mobilu je nahoře sbalená rekapitulace „Celkem 19 290 Kč · Zobrazit rozpis“, pod ní formulář a tlačítko na konci.
+
+**Rekapitulace**
+- Pobyt s termínem a osobami, pod ním servisní poplatek jako samostatný řádek (4.1).
+- Každý doplněk na vlastním řádku s odkazem „Odebrat“. Odebrání se dá vrátit z krátké zprávy.
+- Celkem, z toho z benefitů a doplatek kartou. Stejný pruh pokrytí jako v trip builderu a na obrazovce 2.
+- Žádná věta „Cenu může ovlivnit způsob platby“ bez vysvětlení (4.6). Poplatek se v prototypu nemění, poznámka u něj říká, že se v reálném webu liší podle programu a převod je bez poplatku (FAQ).
+
+**Formulář, shora dolů**
+1. **Ukazatel kroků.** Ve variantě A testu 4 má čtyři kroky, ve variantě B tři, protože krok Doplňky chybí.
+2. **Kontaktní údaje.** Jméno, příjmení, e-mail a telefon. Adresa je sbalená pod „Potřebuji fakturu na firmu nebo adresu“ (4.5). Poznámka pro ubytování je sbalený odkaz.
+3. **Údaje, které chtějí doplňky.** Objeví se jen tehdy, když je doplněk v košíku.
+   - Pojištění: jména a data narození všech pojištěných osob. Pojišťovna je potřebuje k uzavření smlouvy. První osoba se předvyplní z kontaktních údajů.
+   - Auto: jméno řidiče a potvrzení věku, protože půjčovny mají minimální věk řidiče. Výši určí partner, v prototypu je fiktivní.
+   - Tady je to místo, kde doplněk prodlužuje formulář. Proto jsou pole až v košíku, ne na obrazovce 2, a jen ta nutná.
+4. **Ve variantě B testu 4 zkrácená nabídka doplňků.** Blok „Přidat k cestě“ s doporučeným pojištěním a autem, každé jedním tlačítkem. Ostatní varianty po rozbalení.
+5. **Platba.**
+   - Programy jako dlaždice (Edenred, Pluxee, Up) místo rozbalovacího seznamu. Žádný není předvybraný, pokud ho člověk nezvolil dřív (4.2).
+   - Částka z benefitů je předvyplněná zůstatkem z trip builderu nebo obrazovky 2, maximálně do celkové ceny. Jde přepsat.
+   - Doplatek se dopočítá sám a druhá metoda je předvybraná jako platební karta, ne stejná benefitní karta (4.2). Na výběr je i bankovní převod.
+   - Když benefity pokryjí vše, doplatek se vůbec neukáže a místo něj je zelené „Zaplatíte celé z benefitů“.
+   - „Mám dárkový poukaz“ je sbalený odkaz na konci platby, ne první věc v sekci (4.5).
+6. **Souhlasy.** Jeden povinný souhlas s obchodními a storno podmínkami. Když jsou v košíku doplňky, k tomu odkaz na pojistné podmínky a informační dokument pojištění, případně podmínky půjčovny. Souhlas s marketingem není zaškrtnutý (4.4).
+7. **Co bude dál.** Tři krátké body u tlačítka. Potvrzení přijde e-mailem, pojistnou smlouvu pošle pojišťovna, voucher na auto bude v detailu rezervace. U auta i připomínka kauce.
+8. **Tlačítko na konci formuláře** s částkou, třeba „Zaplatit 19 290 Kč“ (4.3). Na desktopu je stejné tlačítko i v rekapitulaci.
+
+**Chyby.** Kontrola až po opuštění pole nebo po kliknutí na Zaplatit. Chyba je u pole a fokus skočí na první chybné pole.
+
+**Potvrzení (stav Hotovo)**
+- Fiktivní číslo objednávky a jasná věta „Ukázka končí. Nic se neobjednalo ani nezaplatilo.“
+- Přehled dokladů, které přijdou: potvrzení pobytu, pojistná smlouva, voucher na auto.
+- Kolik bylo zaplaceno z benefitů, kolik kartou a kolik na benefitech zbývá.
+- **Nabídka doplňku, který člověk nevybral.** Třeba „Ještě nemáte pojištění na cestu do Chorvatska. Přidat za 690 Kč z benefitů.“ Je to místo s nejmenším rizikem pro konverzi ubytování (kapitola 7, bod 4). V prototypu ho jde přidat, potvrzení se aktualizuje a zpráva řekne, že v reálném webu jde o samostatnou platbu.
+- Tlačítka „Projít prototyp znovu“ a „Zpět na případovou studii“.
+
+**Co bych měřil**
+- Konverze od otevření košíku po zaplacení, celkem a zvlášť s doplňky a bez nich.
+- Na kterém poli lidé nejčastěji odcházejí nebo dělají chybu.
+- Podíl rozdělených plateb a kolik lidí přepíše předvyplněnou částku z benefitů.
+- Podíl doplňků přidaných až na potvrzení.
+
+**Předpoklady v prototypu**
+- Doplňky jde zaplatit benefity a servisní poplatek se počítá jen z ubytování. Druhé vychází z FAQ, které o doplňcích nic neříká.
+- Jeden bod je jedna koruna.
+
+`TODO-MILAN: ověřit, jestli se servisní poplatek má počítat i z doplňků`
 
 ## 9. Otázky na první týden
 
@@ -564,7 +631,8 @@ Výsledky vyhledávání a detail hotelu prototyp přeskakuje. Poznámka u shrnu
 - Dovolují podmínky s Booking.com rozšíření do prohlížeče?
 - Umí API partnera hledat podle názvu hotelu?
 - Platí u všech programů, že jeden bod je jedna koruna?
-- Jde doplňkové služby zaplatit benefity?
+- Jde doplňkové služby zaplatit benefity a počítá se z nich servisní poplatek?
+- Nabízejí partnerské půjčovny pojištění bez spoluúčasti, se kterým je kauce nižší nebo žádná?
 - Kdy v roce lidem nejčastěji propadají body a jak se podle toho mění počet rezervací?
 
 ---
@@ -574,7 +642,7 @@ Výsledky vyhledávání a detail hotelu prototyp přeskakuje. Poznámka u shrnu
 1. Technický plán prototypu (stávající kód, design manuál, přepínání mezi studií a prototypem).
 2. Postavit a dokončit úvodní stránku prototypu.
 3. Analýza obrazovky 2, nabídka doplňků (8.8).
-4. Analýza obrazovky 3, košík a platba, včetně potvrzení.
+4. Analýza obrazovky 3, košík a platba, včetně potvrzení (8.9).
 5. Rozhodnout, co se stane s prototypem, který je dnes přímo ve stránce případové studie.
 6. Postavit obrazovky 2 a 3 a napojit celý průchod.
 7. Revize stránky Případová studie, sekci po sekci.
