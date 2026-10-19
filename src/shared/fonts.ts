@@ -1,0 +1,12 @@
+// Fonty podle brand/design-manual.md. Sdílí je případová studie i prototyp.
+import '@fontsource-variable/inter'
+import '@fontsource/poppins/latin-600.css'
+import '@fontsource/poppins/latin-ext-600.css'
+import '@fontsource/poppins/latin-700.css'
+import '@fontsource/poppins/latin-ext-700.css'
+import '@fontsource/outfit/latin-500.css'
+import '@fontsource/outfit/latin-ext-500.css'
+import '@fontsource/outfit/latin-700.css'
+import '@fontsource/outfit/latin-ext-700.css'
+import '@fontsource/outfit/latin-800.css'
+import '@fontsource/outfit/latin-ext-800.css'
