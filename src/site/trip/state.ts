@@ -5,9 +5,16 @@ export type TripState = {
   route: Route
   trip: Trip
   setTrip: (update: (trip: Trip) => Trip) => void
-  /** Začne objednávku s pobytem a případně předvybranými doplňky a otevře obrazovku 2. */
+  /**
+   * Začne objednávku s pobytem a případně předvybranými doplňky. Ve variantě A testu 3
+   * otevře obrazovku 2, ve variantě B rovnou košík.
+   */
   startTrip: (start: Partial<Trip> & Pick<Trip, 'stayId'>) => void
+  /** Otevře obrazovku 2 nebo 3. */
+  goTo: (route: Exclude<Route, 'home'>) => void
   goHome: () => void
+  /** Vymaže výběr a vrátí na úvodní stránku, aby šel prototyp projít znovu. */
+  restart: () => void
 }
 
 export const TripContext = createContext<TripState | null>(null)

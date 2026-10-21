@@ -15,7 +15,7 @@ import { usePrototype } from '../state'
 import { tripTotals, type Preset } from './trip'
 
 const PART_ICONS = { car: CarFront, stay: BedDouble, insurance: ShieldCheck } as const
-// Pořadí na časové ose podle kapitoly 8.5.
+// Pořadí na časové ose podle bodu 1.9.
 const PARTS: TripPart[] = ['car', 'stay', 'insurance']
 
 function PartCard({
@@ -103,7 +103,7 @@ function PartCard({
   )
 }
 
-/** Trip builder „Sestavte si cestu za benefity“ (kapitola 8.5). */
+/** Trip builder „Sestavte si cestu za benefity“ (bod 1.9). */
 export function TripBuilder() {
   const { startTrip } = useTrip()
   const [presetId, setPresetId] = useState<string>(copy.presets[1].id)

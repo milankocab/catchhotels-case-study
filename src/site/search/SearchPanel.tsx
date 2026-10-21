@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   CalendarDays,
   Clock,
-  Globe,
   Link2,
   MapPin,
   Search,
@@ -12,6 +11,7 @@ import {
 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { search } from '../../content-prototyp'
+import { BookingLogo } from '../components/BrandLogos'
 import { Note } from '../components/Note'
 import { LINK_EVENT, scrollToSection, usePrototype } from '../state'
 import { LAYER, useFloating, useOutside } from '../floating'
@@ -21,7 +21,6 @@ import { DestinationField } from './DestinationField'
 import { GuestsPicker, type Guests } from './GuestsPicker'
 import { loadRecent, saveRecent, type RecentSearch } from './recent'
 import { looksLikeBookingLink } from './suggest'
-import { CategorySwitch } from './CategorySwitch'
 import { stayFromText } from '../trip/offer'
 import { useTrip } from '../trip/state'
 
@@ -97,14 +96,12 @@ function PanelField({
 export function SearchPanel({
   sticky,
 }: {
-  /** Panel odjel z obrazovky, takže se nahoře připne hledání (1.9). */
+  /** Panel odjel z obrazovky, takže se nahoře připne hledání (1.5). */
   sticky: boolean
 }) {
-  const { variant, searchTab: tab, setSearchTab: setTab, notify } = usePrototype()
+  const { variant, notify } = usePrototype()
   const { startTrip } = useTrip()
   const [destination, setDestination] = useState('')
-  const [carPlace, setCarPlace] = useState('')
-  const [area, setArea] = useState<string>(search.insurance.areas[1])
   const [range, setRange] = useState<DateRange>({ start: null, end: null })
   const [guests, setGuests] = useState<Guests>({ adults: 2, children: 0 })
   const [panel, setPanel] = useState<Panel>(null)
@@ -118,32 +115,19 @@ export function SearchPanel({
   // Varianta B je dnešní řešení v novém vzhledu, varianta A navržená úprava.
   const isCurrent = variant === 'B'
   // Ve variantě B se termín a osoby ukážou až po zadání místa, stejně jako na dnešním webu.
-  const showRest = !(isCurrent && tab === 'stay' && destination.trim() === '')
+  const showRest = !(isCurrent && destination.trim() === '')
   const dateText = formatRange(range.start, range.end)
   const guestText = search.guests.summary(guests.adults, guests.children)
-  const where = tab === 'car' ? carPlace : tab === 'insurance' ? area : destination
-  const summary = [where || search.sticky.empty, dateText, tab === 'car' ? '' : guestText]
+  const summary = [destination || search.sticky.empty, dateText, guestText]
     .filter(Boolean)
     .join(' · ')
 
-  // Při přepnutí záložky nebo varianty začínám bez chyb a bez vložení odkazu.
-  // Záložku mění i menu v hlavičce, proto stav srovnám už při vykreslení, ne v efektu.
-  // Výjimkou je výzva z sekce Booking.com, která po přepnutí na ubytování otevře vložení odkazu.
-  const resetKey = `${tab}-${variant}`
-  const [lastResetKey, setLastResetKey] = useState(resetKey)
-  const [linkRequested, setLinkRequested] = useState(false)
-  // Pole nové kategorie přijedou ze strany, kam se v přepínači posouvá zvýraznění.
-  const [tabMotion, setTabMotion] = useState('')
-  if (lastResetKey !== resetKey) {
-    const order = search.tabs.map((item) => item.id as string)
-    const previous = order.indexOf(lastResetKey.split('-')[0])
-    const next = order.indexOf(tab)
-    if (previous !== next)
-      setTabMotion(next > previous ? 'animate-slide-left' : 'animate-slide-right')
-    setLastResetKey(resetKey)
+  // Při přepnutí varianty začínám bez chyb a bez vložení odkazu. Stav srovnám už při vykreslení.
+  const [lastVariant, setLastVariant] = useState(variant)
+  if (lastVariant !== variant) {
+    setLastVariant(variant)
     setError(null)
-    setLinkMode(linkRequested && tab === 'stay')
-    setLinkRequested(false)
+    setLinkMode(false)
     setPanel(null)
   }
 
@@ -151,32 +135,28 @@ export function SearchPanel({
   // Ve variantě B pole pro odkaz neexistuje, tak jen dá fokus do hlavního pole.
   useEffect(() => {
     const onLink = () => {
-      if (tab === 'stay') setLinkMode(true)
-      else {
-        setLinkRequested(true)
-        setTab('stay')
-      }
+      setLinkMode(true)
       scrollToSection('hledani')
       window.setTimeout(
         () =>
           document
-            .querySelector<HTMLInputElement>('#hledani [role="tabpanel"] input')
+            .querySelector<HTMLInputElement>('#hledani form input')
             ?.focus({ preventScroll: true }),
         500,
       )
     }
     window.addEventListener(LINK_EVENT, onLink)
     return () => window.removeEventListener(LINK_EVENT, onLink)
-  }, [tab, setTab])
+  }, [])
 
   const submit = (place: Place) => (event: FormEvent) => {
     event.preventDefault()
-    const value = where.trim()
-    if (tab !== 'insurance' && !value) {
-      setError(tab === 'car' ? search.car.placeError : search.destinationError)
+    const value = destination.trim()
+    if (!value) {
+      setError(search.destinationError)
       return
     }
-    if (tab === 'stay' && looksLikeBookingLink(value)) {
+    if (looksLikeBookingLink(value)) {
       notify(search.next.hotel)
       startTrip({ stayId: 'more' })
       return
@@ -186,26 +166,21 @@ export function SearchPanel({
       return
     }
     setError(null)
-    if (tab === 'stay') {
-      const saved: RecentSearch = {
-        tab,
-        destination: value,
-        start: toIsoDate(range.start),
-        end: toIsoDate(range.end),
-        adults: guests.adults,
-        children: guests.children,
-        savedAt: Date.now(),
-      }
-      saveRecent(saved)
-      setRecent(saved)
+    const saved: RecentSearch = {
+      destination: value,
+      start: toIsoDate(range.start),
+      end: toIsoDate(range.end),
+      adults: guests.adults,
+      children: guests.children,
+      savedAt: Date.now(),
     }
+    saveRecent(saved)
+    setRecent(saved)
     // Prototyp přeskakuje výsledky a detail hotelu a otevře rovnou nabídku doplňků.
-    if (tab === 'stay') startTrip({ stayId: stayFromText(value) })
-    else notify(search.next.other)
+    startTrip({ stayId: stayFromText(value) })
   }
 
   const restore = (saved: RecentSearch) => {
-    setTab(saved.tab)
     setDestination(saved.destination)
     setRange({
       start: saved.start ? fromIsoDate(saved.start) : null,
@@ -220,7 +195,7 @@ export function SearchPanel({
     window.setTimeout(
       () =>
         document
-          .querySelector<HTMLElement>('#hledani [role="tabpanel"] :is(input, select, button)')
+          .querySelector<HTMLElement>('#hledani form :is(input, button)')
           ?.focus({ preventScroll: true }),
       400,
     )
@@ -263,69 +238,32 @@ export function SearchPanel({
     const main = place === 'main'
     const datesKey: Panel = `${place}-dates`
     const guestsKey: Panel = `${place}-guests`
-    const [datesLabel, datesPlaceholder] =
-      tab === 'car'
-        ? [search.car.datesLabel, search.car.datesPlaceholder]
-        : tab === 'insurance'
-          ? [search.insurance.datesLabel, search.insurance.datesPlaceholder]
-          : [search.dates.label, search.dates.placeholder]
-    const columns =
-      tab === 'car'
-        ? 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto]'
-        : 'lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.3fr)_minmax(0,1fr)_auto]'
-
     return (
-      <div className={`grid grid-cols-2 items-start gap-3 ${columns}`}>
+      <div className="grid grid-cols-2 items-start gap-3 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.3fr)_minmax(0,1fr)_auto]">
         <div className={`relative col-span-2 ${showRest ? 'lg:col-span-1' : 'lg:col-span-full'}`}>
-          {tab === 'stay' &&
-            (isCurrent ? (
-              textField(
-                destination,
-                setDestination,
-                search.combinedLabel,
-                search.combinedPlaceholder,
-                MapPin,
-              )
-            ) : (
-              <DestinationField
-                value={destination}
-                onChange={(value) => {
-                  setDestination(value)
-                  setError(null)
-                }}
-                onOpenLink={() => {
-                  notify(search.next.hotel)
-                  startTrip({ stayId: 'more' })
-                }}
-                error={error ?? undefined}
-              />
-            ))}
-          {tab === 'car' &&
+          {isCurrent ? (
             textField(
-              carPlace,
-              setCarPlace,
-              search.car.placeLabel,
-              search.car.placePlaceholder,
+              destination,
+              setDestination,
+              search.combinedLabel,
+              search.combinedPlaceholder,
               MapPin,
-            )}
-          {tab === 'insurance' && (
-            <label className="block">
-              <span className="sr-only">{search.insurance.areaLabel}</span>
-              <span className={fieldBox}>
-                <Globe aria-hidden size={18} className="shrink-0 text-cobalt" />
-                <select
-                  value={area}
-                  onChange={(event) => setArea(event.target.value)}
-                  className="min-w-0 flex-1 bg-transparent py-3 outline-none"
-                >
-                  {search.insurance.areas.map((item) => (
-                    <option key={item}>{item}</option>
-                  ))}
-                </select>
-              </span>
-            </label>
+            )
+          ) : (
+            <DestinationField
+              value={destination}
+              onChange={(value) => {
+                setDestination(value)
+                setError(null)
+              }}
+              onOpenLink={() => {
+                notify(search.next.hotel)
+                startTrip({ stayId: 'more' })
+              }}
+              error={error ?? undefined}
+            />
           )}
-          {main && tab === 'stay' && (
+          {main && (
             <Note
               id={isCurrent ? 'searchCurrent' : 'searchNew'}
               className="absolute -top-3 right-2"
@@ -335,14 +273,12 @@ export function SearchPanel({
 
         {showRest && (
           <>
-            <div
-              className={`relative ${tab === 'car' ? 'col-span-2' : ''} lg:col-span-1 ${main && isCurrent && tab === 'stay' ? 'animate-rise' : ''}`}
-            >
+            <div className={`relative lg:col-span-1 ${main && isCurrent ? 'animate-rise' : ''}`}>
               <PanelField
                 icon={CalendarDays}
-                label={datesLabel}
+                label={search.dates.label}
                 text={dateText}
-                placeholder={datesPlaceholder}
+                placeholder={search.dates.placeholder}
                 open={panel === datesKey}
                 onToggle={() => toggle(datesKey)}
                 onClose={closePanel}
@@ -352,28 +288,24 @@ export function SearchPanel({
                   onClose={closePanel}
                   onConfirm={(next) => {
                     setRange(next)
-                    setPanel(tab === 'car' ? null : guestsKey)
+                    setPanel(guestsKey)
                   }}
                 />
               </PanelField>
-              {main && !isCurrent && tab === 'stay' && (
-                <Note id="fields" className="absolute -top-3 right-2" />
-              )}
+              {main && !isCurrent && <Note id="fields" className="absolute -top-3 right-2" />}
             </div>
-            {tab !== 'car' && (
-              <PanelField
-                icon={Users}
-                label={search.guests.label}
-                text={guestText}
-                placeholder={search.guests.label}
-                open={panel === guestsKey}
-                onToggle={() => toggle(guestsKey)}
-                onClose={closePanel}
-                align="right"
-              >
-                <GuestsPicker value={guests} onChange={setGuests} onDone={closePanel} />
-              </PanelField>
-            )}
+            <PanelField
+              icon={Users}
+              label={search.guests.label}
+              text={guestText}
+              placeholder={search.guests.label}
+              open={panel === guestsKey}
+              onToggle={() => toggle(guestsKey)}
+              onClose={closePanel}
+              align="right"
+            >
+              <GuestsPicker value={guests} onChange={setGuests} onDone={closePanel} />
+            </PanelField>
             <div className="relative col-span-2 lg:col-span-1">
               <button
                 type="submit"
@@ -428,35 +360,31 @@ export function SearchPanel({
 
   return (
     <div className="relative rounded-[20px] bg-white p-4 shadow-lift sm:p-5">
-      {/* Záložky kategorií jako segmenty uvnitř karty. Ve variantách A i B stejné. */}
+      {/* Vyhledávání jen pro ubytování. Doplňky se nabízejí až po výběru pobytu (bod 1.7). */}
       <div className="flex items-center gap-2">
-        <CategorySwitch mode="tabs" value={tab} onChange={setTab} className="flex-1 sm:flex-none" />
-        <Note id="tabs" />
+        <h2 id="hledani-nadpis" className="text-xl leading-tight font-semibold">
+          {search.title}
+        </h2>
         <Note id="row" className="ml-auto max-lg:hidden" />
       </div>
 
-      <form
-        key={tab}
-        role="tabpanel"
-        aria-label={search.tabs.find((item) => item.id === tab)?.label}
-        onSubmit={submit('main')}
-        noValidate
-        className={`mt-4 ${tabMotion}`}
-      >
-        {tab === 'stay' && linkMode && !isCurrent ? (
+      <form aria-labelledby="hledani-nadpis" onSubmit={submit('main')} noValidate className="mt-4">
+        {linkMode && !isCurrent ? (
           linkForm
         ) : (
           <>
-            {tab === 'stay' && isCurrent && (
+            {isCurrent && (
               <p className="mb-2 text-sm font-medium text-cobalt-deep">{search.combinedLabel}</p>
             )}
             {fieldsRow('main')}
           </>
         )}
 
-        {tab === 'stay' && !isCurrent && !linkMode && (
+        {!isCurrent && !linkMode && (
           <p className="mt-3 flex flex-wrap items-center gap-x-1 text-sm text-muted">
-            {search.linkQuestion}
+            <span>
+              {search.linkQuestion} <BookingLogo className="h-3.5 translate-y-px" />?
+            </span>
             <button
               type="button"
               onClick={() => {
@@ -472,7 +400,7 @@ export function SearchPanel({
           </p>
         )}
 
-        {recent && recent.tab === tab && !linkMode && (
+        {recent && !linkMode && (
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3">
             <span className="text-sm text-muted">{search.recentTitle}</span>
             <button
@@ -509,16 +437,12 @@ export function SearchPanel({
               aria-label={search.sticky.label}
               className="mx-auto flex max-w-6xl items-start gap-3 px-4 py-3 max-lg:hidden"
             >
-              <CategorySwitch mode="bar" value={tab} onChange={setTab} className="shrink-0" />
-              <div key={tab} className={`min-w-0 flex-1 ${tabMotion}`}>
-                {fieldsRow('sticky')}
-              </div>
+              <div className="min-w-0 flex-1">{fieldsRow('sticky')}</div>
               <Note id="sticky" className="mt-3" />
             </form>
 
-            {/* Mobil a tablet: přepínač kategorií a zkrácený řádek, který vrátí k panelu hledání. */}
+            {/* Mobil a tablet: zkrácený řádek, který vrátí k panelu hledání. */}
             <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2 lg:hidden">
-              <CategorySwitch mode="bar" value={tab} onChange={setTab} className="shrink-0" />
               <button
                 type="button"
                 onClick={backToSearch}

@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { DEFAULT_BALANCE, type Route, type Trip } from './offer'
 import { TripContext } from './state'
+import { usePrototype } from '../state'
 
 const STORAGE_KEY = 'prototyp-cesta-v1'
 // Obrazovky prototypu mají vlastní adresu v hashi, aby fungovalo tlačítko zpět a šlo poslat odkaz.
-const HASHES: Record<Exclude<Route, 'home'>, string> = { addons: '#doplnky' }
+const HASHES: Record<Exclude<Route, 'home'>, string> = { addons: '#doplnky', cart: '#kosik' }
 
-const routeFromHash = (): Route =>
-  typeof window !== 'undefined' && window.location.hash === HASHES.addons ? 'addons' : 'home'
+const routeFromHash = (): Route => {
+  if (typeof window === 'undefined') return 'home'
+  const found = Object.entries(HASHES).find(([, hash]) => hash === window.location.hash)
+  return (found?.[0] as Route | undefined) ?? 'home'
+}
 
 const DEFAULT_TRIP: Trip = { stayId: 'more', insurance: null, car: null, balance: DEFAULT_BALANCE }
 
@@ -21,6 +25,7 @@ function loadTrip(): Trip {
 }
 
 export function TripProvider({ children }: { children: ReactNode }) {
+  const { addonsVariant } = usePrototype()
   const [route, setRoute] = useState<Route>(routeFromHash)
   const [trip, setTripState] = useState<Trip>(loadTrip)
 
@@ -51,6 +56,11 @@ export function TripProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const goTo = useCallback((next: Exclude<Route, 'home'>) => {
+    if (window.location.hash !== HASHES[next]) window.location.hash = HASHES[next]
+    setRoute(next)
+  }, [])
+
   const startTrip = useCallback(
     (start: Partial<Trip> & Pick<Trip, 'stayId'>) => {
       setTrip((current) => ({
@@ -59,10 +69,9 @@ export function TripProvider({ children }: { children: ReactNode }) {
         car: start.car ?? null,
         balance: start.balance ?? current.balance,
       }))
-      if (window.location.hash !== HASHES.addons) window.location.hash = HASHES.addons
-      setRoute('addons')
+      goTo(addonsVariant === 'B' ? 'cart' : 'addons')
     },
-    [setTrip],
+    [setTrip, goTo, addonsVariant],
   )
 
   const goHome = useCallback(() => {
@@ -70,9 +79,14 @@ export function TripProvider({ children }: { children: ReactNode }) {
     setRoute('home')
   }, [])
 
+  const restart = useCallback(() => {
+    setTrip(() => DEFAULT_TRIP)
+    goHome()
+  }, [setTrip, goHome])
+
   const value = useMemo(
-    () => ({ route, trip, setTrip, startTrip, goHome }),
-    [route, trip, setTrip, startTrip, goHome],
+    () => ({ route, trip, setTrip, startTrip, goTo, goHome, restart }),
+    [route, trip, setTrip, startTrip, goTo, goHome, restart],
   )
   return <TripContext.Provider value={value}>{children}</TripContext.Provider>
 }

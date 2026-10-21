@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { czk, destinations, offer, tripBuilder } from '../../content-prototyp'
+import { czk, destinations, hero, offer, tripBuilder } from '../../content-prototyp'
 import { SiteApp } from '../SiteApp'
 import { offerTotals, stayFromText } from '../trip/offer'
 
@@ -51,7 +51,7 @@ describe('Obrazovka 2, nabídka doplňků', () => {
     render(<SiteApp />)
     fireEvent.click(screen.getByRole('button', { name: new RegExp(destinations.items[0].name) }))
     fireEvent.click(screen.getByRole('button', { name: offer.change }))
-    expect(screen.getByRole('heading', { level: 1, name: /Celá dovolená/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: hero.title })).toBeInTheDocument()
   })
 })
 

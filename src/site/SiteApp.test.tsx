@@ -29,17 +29,21 @@ describe('Prototyp úvodní stránky', () => {
     expect(screen.getByText(placeholder.b2b)).toBeInTheDocument()
   })
 
-  it('ovládání přepíná poznámky a variantu vyhledávání a pamatuje si je', () => {
+  it('ovládání přepíná poznámky a varianty obou testů a pamatuje si je', () => {
     render(<SiteApp />)
     fireEvent.click(screen.getByRole('button', { name: controls.open }))
     const notes = screen.getByRole('switch', { name: controls.notes })
     expect(notes).toHaveAttribute('aria-checked', 'true')
     fireEvent.click(notes)
     expect(notes).toHaveAttribute('aria-checked', 'false')
-    fireEvent.click(screen.getByRole('radio', { name: 'B' }))
+    const panel = screen.getByRole('region', { name: controls.title })
+    const [search, addons] = within(panel).getAllByRole('group')
+    fireEvent.click(within(search).getByRole('radio', { name: 'B' }))
+    fireEvent.click(within(addons).getByRole('radio', { name: 'B' }))
     expect(JSON.parse(localStorage.getItem('prototyp-ovladani-v2') ?? '{}')).toEqual({
       notes: false,
       variant: 'B',
+      addonsVariant: 'B',
     })
   })
 

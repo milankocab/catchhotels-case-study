@@ -2,9 +2,8 @@ import { Check } from 'lucide-react'
 import { offer } from '../../content-prototyp'
 import { Note } from './Note'
 
-/** Ukazatel kroků objednávky (zjištění 4.7). Na mobilu jen „Krok 2 z 4“ s pruhem. */
-export function Stepper({ current }: { current: number }) {
-  const steps = offer.steps
+/** Ukazatel kroků objednávky (zjištění 3.7). Na mobilu jen „Krok 2 z 4“ s pruhem. */
+export function Stepper({ current, steps = offer.steps }: { current: number; steps?: string[] }) {
   return (
     <nav aria-label={offer.stepsLabel} className="flex items-center gap-2">
       <ol className="flex flex-1 items-center gap-2 max-sm:hidden">

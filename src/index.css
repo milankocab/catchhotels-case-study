@@ -77,24 +77,6 @@
   --animate-hero-photo: hero-photo 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-pop: pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 
-  /* Jen backwards: po doběhnutí na prvku nezůstane transform, který by měnil vrstvy. */
-  --animate-slide-left: slide-left 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  --animate-slide-right: slide-right 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-
-  @keyframes slide-left {
-    0% {
-      transform: translateX(32px);
-      opacity: 0;
-    }
-  }
-
-  @keyframes slide-right {
-    0% {
-      transform: translateX(-32px);
-      opacity: 0;
-    }
-  }
-
   @keyframes hero-photo {
     0% {
       transform: scale(1.08);

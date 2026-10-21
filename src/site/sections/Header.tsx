@@ -11,23 +11,17 @@ const HOME = import.meta.env.BASE_URL
 
 /** Hlavička webu. V objednávce (minimal) jen logo, aby nic neodvádělo od dokončení. */
 export function Header({ minimal = false }: { minimal?: boolean }) {
-  const { searchTab, setSearchTab, notify } = usePrototype()
+  const { notify } = usePrototype()
   const [open, setOpen] = useState(false)
 
   const activate = (item: NavItem) => {
     setOpen(false)
-    if (item.kind === 'tab') {
-      setSearchTab(item.tab)
-      scrollToSection('hledani')
-      if ('note' in item && item.note) notify(item.note)
-    } else if (item.kind === 'scroll') {
+    if (item.kind === 'scroll') {
       scrollToSection(item.target)
     } else {
       notify(item.note)
     }
   }
-
-  const isActive = (item: NavItem) => item.kind === 'tab' && item.tab === searchTab
 
   const links = (layout: 'row' | 'column') =>
     header.nav.map((item) => (
@@ -35,10 +29,9 @@ export function Header({ minimal = false }: { minimal?: boolean }) {
         <button
           type="button"
           onClick={() => activate(item)}
-          aria-current={isActive(item) ? 'true' : undefined}
           className={`flex min-h-11 items-center gap-1.5 text-[15px] font-medium transition-colors hover:text-coral-600 ${
             layout === 'column' ? 'w-full px-4' : 'px-1'
-          } ${isActive(item) ? 'text-coral-600' : 'text-cobalt'}`}
+          } text-cobalt`}
         >
           {item.label}
           {item.kind === 'external' && <ExternalLink aria-hidden size={14} />}

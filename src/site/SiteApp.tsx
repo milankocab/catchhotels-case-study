@@ -14,12 +14,13 @@ import { Chat } from './components/Chat'
 import { PrototypeControls } from './components/PrototypeControls'
 import { useScrollReveal } from './motion'
 import { AddonsScreen } from './addons/AddonsScreen'
+import { CartScreen } from './cart/CartScreen'
 import { TripProvider } from './trip/TripProvider'
 import { useTrip } from './trip/state'
 
 /**
- * Prototyp navrhovaného webu. Úvodní stránka (pořadí sekcí podle analyza-webu.md, kapitola 8.3)
- * a obrazovka 2 s nabídkou doplňků na adrese #doplnky (kapitola 8.8).
+ * Prototyp navrhovaného webu. Úvodní stránka (analyza-webu.md, kapitola 3)
+ * obrazovka 2 s nabídkou doplňků na #doplnky (kapitola 4) a obrazovka 3 s košíkem na #kosik (kapitola 5).
  */
 export function SiteApp() {
   return (
@@ -34,14 +35,12 @@ export function SiteApp() {
 function Screens() {
   useScrollReveal()
   const { route } = useTrip()
-  if (route === 'addons')
+  if (route !== 'home')
     return (
       <>
         <TopBar current="prototype" />
         <Header minimal />
-        <main className="bg-page">
-          <AddonsScreen />
-        </main>
+        <main className="bg-page">{route === 'addons' ? <AddonsScreen /> : <CartScreen />}</main>
         <Footer />
         <PrototypeControls />
         <Chat />

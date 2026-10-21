@@ -1,5 +1,5 @@
 import { createContext, useContext, type Dispatch, type SetStateAction } from 'react'
-import type { SearchTab, SearchVariant } from '../content-prototyp'
+import type { AddonsVariant, SearchVariant } from '../content-prototyp'
 
 export type PrototypeState = {
   /** Zobrazit čísla s poznámkami „proč“ u změn. */
@@ -8,9 +8,9 @@ export type PrototypeState = {
   /** Varianta A/B testu vyhledávacího pole. */
   variant: SearchVariant
   setVariant: (value: SearchVariant) => void
-  /** Aktivní záložka vyhledávání. Mění ji i menu v hlavičce. */
-  searchTab: SearchTab
-  setSearchTab: (value: SearchTab) => void
+  /** Varianta A/B testu 3, kde nabídnout doplňky. */
+  addonsVariant: AddonsVariant
+  setAddonsVariant: (value: AddonsVariant) => void
   /** Krátké upozornění dole na obrazovce, třeba u odkazů mimo prototyp. */
   notify: (text: string) => void
   /** Otevřená poznámka „proč“. Najednou je otevřená vždy jen jedna. */

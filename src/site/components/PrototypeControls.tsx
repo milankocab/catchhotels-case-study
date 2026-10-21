@@ -4,11 +4,58 @@ import { controls } from '../../content-prototyp'
 import { LAYER } from '../floating'
 import { usePrototype } from '../state'
 
+type Variant = 'A' | 'B'
+
+/** Přepínač variant jednoho A/B testu. */
+function VariantSwitch({
+  name,
+  legend,
+  hint,
+  options,
+  value,
+  onChange,
+}: {
+  name: string
+  legend: string
+  hint: string
+  options: readonly { id: Variant; label: string; description: string }[]
+  value: Variant
+  onChange: (value: Variant) => void
+}) {
+  return (
+    <fieldset className="mt-4 border-t border-white/15 pt-3">
+      <legend className="font-medium">{legend}</legend>
+      <p className="mt-0.5 text-xs text-azure-light">{hint}</p>
+      <div className="mt-2 grid grid-cols-2 gap-1 rounded-full bg-white/10 p-1">
+        {options.map((item) => (
+          <label
+            key={item.id}
+            className="flex min-h-9 items-center justify-center rounded-full font-medium transition-colors has-checked:bg-white has-checked:text-cobalt-deep has-focus-visible:outline-2 has-focus-visible:outline-white"
+          >
+            <input
+              type="radio"
+              name={name}
+              value={item.id}
+              checked={value === item.id}
+              onChange={() => onChange(item.id)}
+              className="sr-only"
+            />
+            {item.label}
+          </label>
+        ))}
+      </div>
+      <p className="mt-2 text-xs text-azure-light">
+        {options.find((item) => item.id === value)?.description}
+      </p>
+    </fieldset>
+  )
+}
+
 /**
  * Plovoucí panel vlevo dole. Ovládá prototyp, není součástí navrhovaného webu.
  */
 export function PrototypeControls() {
-  const { notes, setNotes, variant, setVariant } = usePrototype()
+  const { notes, setNotes, variant, setVariant, addonsVariant, setAddonsVariant } = usePrototype()
   const [open, setOpen] = useState(false)
 
   if (!open) {
@@ -63,31 +110,22 @@ export function PrototypeControls() {
         </button>
       </div>
 
-      <fieldset className="mt-4 border-t border-white/15 pt-3">
-        <legend className="font-medium">{controls.variant}</legend>
-        <p className="mt-0.5 text-xs text-azure-light">{controls.variantHint}</p>
-        <div className="mt-2 grid grid-cols-2 gap-1 rounded-full bg-white/10 p-1">
-          {controls.variants.map((item) => (
-            <label
-              key={item.id}
-              className="flex min-h-9 items-center justify-center rounded-full font-medium transition-colors has-checked:bg-white has-checked:text-cobalt-deep has-focus-visible:outline-2 has-focus-visible:outline-white"
-            >
-              <input
-                type="radio"
-                name="varianta-vyhledavani"
-                value={item.id}
-                checked={variant === item.id}
-                onChange={() => setVariant(item.id)}
-                className="sr-only"
-              />
-              {item.label}
-            </label>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-azure-light">
-          {controls.variants.find((item) => item.id === variant)?.description}
-        </p>
-      </fieldset>
+      <VariantSwitch
+        name="varianta-vyhledavani"
+        legend={controls.variant}
+        hint={controls.variantHint}
+        options={controls.variants}
+        value={variant}
+        onChange={setVariant}
+      />
+      <VariantSwitch
+        name="varianta-doplnku"
+        legend={controls.addons}
+        hint={controls.addonsHint}
+        options={controls.addonsVariants}
+        value={addonsVariant}
+        onChange={setAddonsVariant}
+      />
     </section>
   )
 }

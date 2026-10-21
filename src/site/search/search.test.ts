@@ -31,7 +31,6 @@ describe('dates', () => {
 describe('nedávné hledání', () => {
   const now = new Date(2026, 9, 19, 12)
   const search: RecentSearch = {
-    tab: 'stay',
     destination: 'Praha',
     start: '2026-11-13',
     end: '2026-11-15',

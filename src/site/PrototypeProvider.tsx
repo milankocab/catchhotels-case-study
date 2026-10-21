@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
-import { placeholder, type SearchTab, type SearchVariant } from '../content-prototyp'
+import { placeholder, type AddonsVariant, type SearchVariant } from '../content-prototyp'
 import { LAYER } from './floating'
 import { PrototypeContext } from './state'
 
@@ -8,16 +8,21 @@ import { PrototypeContext } from './state'
 const STORAGE_KEY = 'prototyp-ovladani-v2'
 
 // Nastavení ovládání si pamatuji jen v prohlížeči. Bez úložiště prototyp funguje s výchozími hodnotami.
-function readStored(): { notes: boolean; variant: SearchVariant } {
-  const fallback = { notes: true, variant: 'A' as SearchVariant }
+type Stored = { notes: boolean; variant: SearchVariant; addonsVariant: AddonsVariant }
+
+const isVariant = (value: unknown): value is 'A' | 'B' => value === 'A' || value === 'B'
+
+function readStored(): Stored {
+  const fallback: Stored = { notes: true, variant: 'A', addonsVariant: 'A' }
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
-    if (
-      parsed &&
-      typeof parsed.notes === 'boolean' &&
-      (parsed.variant === 'A' || parsed.variant === 'B')
-    )
-      return parsed
+    if (parsed && typeof parsed.notes === 'boolean' && isVariant(parsed.variant))
+      // Uložené nastavení z doby před testem 3 variantu doplňků nemá.
+      return {
+        ...fallback,
+        ...parsed,
+        addonsVariant: isVariant(parsed.addonsVariant) ? parsed.addonsVariant : 'A',
+      }
   } catch {
     // Úložiště není dostupné, třeba v anonymním okně.
   }
@@ -28,7 +33,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
   const [stored] = useState(readStored)
   const [notes, setNotes] = useState(stored.notes)
   const [variant, setVariant] = useState<SearchVariant>(stored.variant)
-  const [searchTab, setSearchTab] = useState<SearchTab>('stay')
+  const [addonsVariant, setAddonsVariant] = useState<AddonsVariant>(stored.addonsVariant)
   const [toast, setToast] = useState<string | null>(null)
   const [activeNote, setActiveNote] = useState<string | null>(null)
   const [noteNumbers, setNoteNumbers] = useState<Record<string, number>>({})
@@ -36,11 +41,11 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ notes, variant }))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ notes, variant, addonsVariant }))
     } catch {
       // Viz readStored.
     }
-  }, [notes, variant])
+  }, [notes, variant, addonsVariant])
 
   const notify = useCallback((text: string) => {
     setToast(text)
@@ -113,14 +118,14 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
       setNotes,
       variant,
       setVariant,
-      searchTab,
-      setSearchTab,
+      addonsVariant,
+      setAddonsVariant,
       notify,
       activeNote,
       setActiveNote,
       noteNumbers,
     }),
-    [notes, variant, searchTab, notify, activeNote, noteNumbers],
+    [notes, variant, addonsVariant, notify, activeNote, noteNumbers],
   )
 
   return (

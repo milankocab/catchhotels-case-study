@@ -1,6 +1,6 @@
 import { offer, type CarClass, type InsuranceTier, type StayId } from '../../content-prototyp'
 
-export type Route = 'home' | 'addons'
+export type Route = 'home' | 'addons' | 'cart'
 
 /** Výběr na obrazovce 2. Null znamená, že člověk zatím nic nezvolil, 'none' je výslovné „Bez“. */
 export type Trip = {

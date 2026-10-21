@@ -310,7 +310,7 @@ function CarSection() {
   const [expanded, setExpanded] = useState(false)
   const choose = (car: CarClass | 'none') => setTrip((t) => ({ ...t, car }))
 
-  // Ve městě je auto sbalené do jednoho řádku (kapitola 8.4).
+  // Ve městě je auto sbalené do jednoho řádku (bod 2.4).
   if (stay.carCollapsed && !expanded && !isCar(trip.car)) {
     return (
       <div
@@ -402,13 +402,12 @@ function CarSection() {
 }
 
 function useOfferActions() {
-  const { setTrip } = useTrip()
-  const { notify } = usePrototype()
+  const { setTrip, goTo } = useTrip()
   return {
-    proceed: () => notify(copy.summary.next),
+    proceed: () => goTo('cart'),
     skip: () => {
       setTrip((t) => ({ ...t, insurance: 'none', car: 'none' }))
-      notify(copy.summary.next)
+      goTo('cart')
     },
   }
 }
@@ -599,7 +598,7 @@ function MobileBar({ actionsRef }: { actionsRef: RefObject<HTMLDivElement | null
   )
 }
 
-/** Obrazovka 2. Nabídka doplňků po výběru ubytování (analyza-webu.md, kapitola 8.8). */
+/** Obrazovka 2. Nabídka doplňků po výběru ubytování (analyza-webu.md, kapitola 4). */
 export function AddonsScreen() {
   const actionsRef = useRef<HTMLDivElement>(null)
   return (

@@ -4,10 +4,8 @@
  * Jak upravovat:
  * - Text měňte přímo v uvozovkách. Platí stejná pravidla stylu jako v content.ts.
  * - Text začínající „TODO-MILAN:“ se v prototypu zobrazí jako jantarový štítek.
- * - Všechna data v prototypu jsou fiktivní. Ceny jsou v korunách (viz analyza-webu.md, kapitola 8.7).
+ * - Všechna data v prototypu jsou fiktivní. Ceny jsou v korunách (viz analyza-webu.md, příloha B).
  */
-
-export type SearchTab = 'stay' | 'car' | 'insurance'
 
 /** Pruh s přepínačem nahoře na obou stránkách. Žádný další text. */
 export const switcher = {
@@ -26,8 +24,8 @@ export const placeholder = {
 }
 
 type NavItem =
-  | { label: string; kind: 'tab'; tab: SearchTab; note?: string }
   | { label: string; kind: 'scroll'; target: string }
+  | { label: string; kind: 'page'; note: string }
   | { label: string; kind: 'external'; note: string }
 
 export const header = {
@@ -36,9 +34,9 @@ export const header = {
   menuClose: 'Zavřít menu',
   navLabel: 'Hlavní menu',
   nav: [
-    { label: 'Ubytování', kind: 'tab', tab: 'stay' },
-    { label: 'Půjčení auta', kind: 'tab', tab: 'car', note: placeholder.category },
-    { label: 'Cestovní pojištění', kind: 'tab', tab: 'insurance', note: placeholder.category },
+    { label: 'Ubytování', kind: 'scroll', target: 'hledani' },
+    { label: 'Půjčení auta', kind: 'page', note: placeholder.category },
+    { label: 'Cestovní pojištění', kind: 'page', note: placeholder.category },
     { label: 'Inspirace', kind: 'scroll', target: 'inspirace' },
     { label: 'Jak to funguje', kind: 'scroll', target: 'jak-to-funguje' },
     { label: 'Pro firmy', kind: 'external', note: placeholder.b2b },
@@ -54,39 +52,46 @@ export const controls = {
   notesHint:
     'Čísla jdou po stránce shora dolů. V poznámce je, z kterého bodu analýzy změna vychází.',
   variant: 'Vyhledávání',
-  variantHint: 'Varianty A/B testu vyhledávacího pole.',
+  variantHint: 'Varianty A/B testu 1, vyhledávací pole.',
   variants: [
     { id: 'A', label: 'A', description: 'Navržená úprava' },
     { id: 'B', label: 'B', description: 'Současné řešení v novém vzhledu' },
   ],
+  addons: 'Doplňky',
+  addonsHint: 'Varianty A/B testu 3, kde nabídnout doplňky.',
+  addonsVariants: [
+    { id: 'A', label: 'A', description: 'Samostatný krok po výběru ubytování' },
+    { id: 'B', label: 'B', description: 'Zkrácená nabídka v košíku, bez kroku navíc' },
+  ],
 } as const
 
 export type SearchVariant = (typeof controls.variants)[number]['id']
+export type AddonsVariant = (typeof controls.addonsVariants)[number]['id']
 
 const plural = (n: number, one: string, few: string, many: string) =>
   `${n} ${n === 1 ? one : n >= 2 && n <= 4 ? few : many}`
 
-// Úvodní sekce s nadpisem (zjištění 1.3)
+// Úvodní sekce. Nadpis o benefitech (bod 1.3) a sezónní ilustrace (bod 1.6).
 export const hero = {
-  title: 'Celá dovolená za benefity',
+  title: 'Dovolená za benefity, ne za vlastní peníze',
   subtitle:
-    'Ubytování, půjčení auta i cestovní pojištění zaplatíte z benefitů od zaměstnavatele. Vlastní peníze přidáte, jen když benefity nestačí.',
+    'Ubytování i doplňky zaplatíte z benefitů od zaměstnavatele. Vlastní peníze přidáte, jen když benefity nestačí.',
   programsLabel: 'Platíte benefity od',
-  programs: ['Edenred', 'Pluxee', 'Up'],
-  programsHow: 'Jak se platí benefity',
-  // Doplňky hned v první obrazovce (kapitola 7). Ceny jsou fiktivní, odpovídají datům v src/content.ts.
+  programs: ['edenred', 'pluxee', 'up'] satisfies ProgramId[],
+  how: 'Jak se platí benefity',
+  photoAlt: 'Ilustrace pobřeží s městečkem, plachetnicí a turistou na vyhlídce',
+  // Doplňky hned v první obrazovce (bod 1.7). Ceny jsou fiktivní, odpovídají datům v src/content.ts.
   addons: {
     title: 'Doplňkové služby',
-    lead: 'Přidejte je k pobytu po výběru ubytování, nebo je kupte zvlášť. Zaplatíte stejnými benefity.',
+    lead: 'Nabídneme je po výběru ubytování. Zaplatíte stejnými benefity.',
     items: [
-      { tab: 'insurance', label: 'Cestovní pojištění', price: 'od 190 Kč', unit: 'za cestu' },
-      { tab: 'car', label: 'Půjčení auta', price: 'od 450 Kč', unit: 'za den' },
-    ] satisfies { tab: SearchTab; label: string; price: string; unit: string }[],
-    photoAlt: 'Malé oranžové auto zaparkované na slunné ulici',
+      { id: 'insurance', label: 'Cestovní pojištění', price: 'od 190 Kč', unit: 'za cestu' },
+      { id: 'car', label: 'Půjčení auta', price: 'od 450 Kč', unit: 'za den' },
+    ] satisfies { id: AddonKind; label: string; price: string; unit: string }[],
   },
 }
 
-// Chat vpravo dole (zjištění 1.10). Jen ukázka, odpovědi jsou předpřipravené.
+// Chat vpravo dole (zjištění 1.15). Jen ukázka, odpovědi jsou předpřipravené.
 export const chat = {
   open: 'Zeptejte se',
   close: 'Zavřít chat',
@@ -116,14 +121,9 @@ export const chat = {
   sent: 'Ve skutečném webu by odpověděl AI asistent z častých dotazů.',
 }
 
-// Vyhledávání (zjištění 1.1, 1.2, 1.4, 1.9 a 1.11). Místa a hotely jsou fiktivní.
+// Vyhledávání (zjištění 1.1, 1.2, 1.4, 1.5 a 1.6). Místa a hotely jsou fiktivní.
 export const search = {
-  tabsLabel: 'Co hledáte',
-  tabs: [
-    { id: 'stay', label: 'Ubytování', short: 'Ubytování' },
-    { id: 'car', label: 'Půjčení auta', short: 'Auto' },
-    { id: 'insurance', label: 'Cestovní pojištění', short: 'Pojištění' },
-  ] satisfies { id: SearchTab; label: string; short: string }[],
+  title: 'Kam pojedete?',
 
   destinationLabel: 'Kam pojedete?',
   destinationPlaceholder: 'Město, oblast nebo hotel',
@@ -153,7 +153,8 @@ export const search = {
     { name: 'Apartmány Na Nábřeží', detail: 'Praha' },
   ],
 
-  linkQuestion: 'Máte vybraný hotel na Booking.com?',
+  // Za otázku se vloží logo Booking.com.
+  linkQuestion: 'Máte vybraný hotel na',
   linkAction: 'Vložte odkaz',
   link: {
     label: 'Odkaz na hotel z Booking.com',
@@ -194,26 +195,12 @@ export const search = {
         .filter(Boolean)
         .join(', '),
   },
-  car: {
-    placeLabel: 'Kde auto vyzvednete?',
-    placePlaceholder: 'Město nebo letiště',
-    placeError: 'Napište, kde chcete auto vyzvednout.',
-    datesLabel: 'Vyzvednutí a vrácení',
-    datesPlaceholder: 'Kdy auto potřebujete?',
-  },
-  insurance: {
-    areaLabel: 'Kam jedete?',
-    areas: ['Česko', 'Evropa', 'Celý svět'],
-    datesLabel: 'Termín cesty',
-    datesPlaceholder: 'Kdy cestujete?',
-  },
   submit: 'Hledat',
   recentTitle: 'Stále máte zájem?',
   // Co se stane po odeslání. Další obrazovky prototypu přibudou později.
   next: {
     hotel:
       'Ve skutečném webu se otevře detail hotelu z odkazu. Prototyp přeskočí rovnou na nabídku doplňků.',
-    other: placeholder.category,
   },
   sticky: { label: 'Upravit hledání', empty: 'Kam pojedete?' },
 }
@@ -221,7 +208,7 @@ export const search = {
 export const czk = (value: number) =>
   `${new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(value)} Kč`
 
-// Oblíbené destinace se štítkem doplňku (kapitola 8.4). Ceny jsou fiktivní.
+// Oblíbené destinace se štítkem doplňku (bod 1.8). Ceny jsou fiktivní.
 export type AddonKind = 'car' | 'insurance'
 export const destinations = {
   title: 'Oblíbené destinace',
@@ -264,7 +251,7 @@ export const destinations = {
   }[],
 }
 
-// Trip builder „Sestavte si cestu za benefity“ (kapitola 8.5). Všechno jsou fiktivní ukázky.
+// Trip builder „Sestavte si cestu za benefity“ (bod 1.9). Všechno jsou fiktivní ukázky.
 export type TripPart = 'car' | 'stay' | 'insurance'
 export const tripBuilder = {
   title: 'Sestavte si cestu za benefity',
@@ -335,7 +322,7 @@ export const tripBuilder = {
   cta: 'Naplánovat tuto cestu',
 }
 
-// Obrazovka 2, nabídka doplňků po výběru ubytování (analyza-webu.md, kapitola 8.8).
+// Obrazovka 2, nabídka doplňků po výběru ubytování (analyza-webu.md, kapitola 4).
 // Hotely, ceny, krytí i partneři jsou fiktivní. Ceny navazují na trip builder.
 export type StayId = 'hory' | 'more' | 'mesto' | 'alpy'
 export type InsuranceTier = 'basic' | 'standard' | 'plus'
@@ -462,7 +449,6 @@ export const offer = {
     cta: 'Pokračovat do košíku',
     skip: 'Pokračovat bez doplňků',
     breakdown: 'Rozpis',
-    next: 'Košík s rozdělením platby je další obrazovka prototypu. Právě ji připravuji.',
   },
   stays: {
     hory: {
@@ -560,7 +546,160 @@ export const offer = {
   } satisfies Record<StayId, Stay>,
 }
 
-// Dobré vědět před cestou (kapitola 8.6). Obsah je ilustrativní, podmínky by vznikly s partnery.
+// Obrazovka 3, košík s rozdělením platby a potvrzení (analyza-webu.md, kapitola 5).
+// Programy, partneři, číslo objednávky i podmínky jsou fiktivní.
+export type ProgramId = 'edenred' | 'pluxee' | 'up'
+export type PayMethod = 'card' | 'transfer'
+
+export const cart = {
+  title: 'Košík a platba',
+  lead: 'Zkontrolujte cestu, vyplňte údaje a rozdělte platbu mezi benefity a kartu.',
+  // Ve variantě B testu 3 chybí krok Doplňky.
+  stepsShort: ['Ubytování', 'Košík a platba', 'Hotovo'],
+  back: 'Zpět na doplňky',
+  recap: {
+    title: 'Vaše objednávka',
+    show: 'Zobrazit rozpis',
+    hide: 'Skrýt rozpis',
+    stay: 'Ubytování',
+    fee: 'Servisní poplatek',
+    insurance: (tier: string) => `Cestovní pojištění ${tier}`,
+    remove: 'Odebrat',
+    removed: (name: string) => `${name} jsme z košíku odebrali.`,
+    undo: 'Vrátit',
+    total: 'Celkem',
+    fromBenefits: 'Z benefitů',
+    topUp: 'Doplatek',
+    covered: 'Zaplatíte celé z benefitů',
+  },
+  contact: {
+    title: 'Kontaktní údaje',
+    firstName: 'Jméno',
+    lastName: 'Příjmení',
+    email: 'E-mail',
+    emailHint: 'Sem pošleme potvrzení a všechny doklady.',
+    phone: 'Telefon',
+    phoneHint: 'Nepovinné. Ozveme se jen při změně rezervace.',
+    address: 'Potřebuji fakturu nebo adresu',
+    street: 'Ulice a číslo',
+    city: 'Město',
+    zip: 'PSČ',
+    company: 'IČO, pokud chcete fakturu na firmu',
+    note: 'Přidat poznámku pro ubytování',
+    noteLabel: 'Poznámka pro ubytování',
+    noteHint: 'Třeba pozdní příjezd. Ubytování se ji pokusí splnit, ale nemusí.',
+  },
+  insured: {
+    title: 'Pojištěné osoby',
+    lead: 'Pojišťovna potřebuje jména a data narození všech, kdo jedou.',
+    person: (n: number) => `${n}. osoba`,
+    name: 'Jméno a příjmení',
+    birth: 'Datum narození',
+    birthPlaceholder: 'např. 1. 5. 1990',
+  },
+  driver: {
+    title: 'Řidič',
+    lead: 'Auto vyzvedne řidič s řidičským průkazem a kreditní kartou na své jméno.',
+    name: 'Jméno a příjmení řidiče',
+    age: 'Řidiči je alespoň 21 let',
+    ageHint: 'Minimální věk určuje půjčovna. V prototypu je fiktivní.',
+  },
+  // Varianta B testu 3. Zkrácená nabídka doplňků přímo v košíku.
+  offer: {
+    title: 'Přidat k cestě',
+    lead: 'Termín a osoby už známe. Doplněk zaplatíte stejnými benefity jako pobyt.',
+    add: 'Přidat',
+    added: 'V košíku',
+    more: 'Další varianty',
+    perTrip: 'za celou cestu',
+  },
+  payment: {
+    title: 'Platba',
+    programs: 'Čím platíte benefity',
+    programsHint: 'Vyberte svůj benefitní program.',
+    programList: [
+      { id: 'edenred', name: 'Edenred' },
+      { id: 'pluxee', name: 'Pluxee' },
+      { id: 'up', name: 'Up' },
+    ] satisfies { id: ProgramId; name: string }[],
+    amount: 'Kolik zaplatíte z benefitů',
+    amountHint: (balance: string) =>
+      `Předvyplnili jsme podle zůstatku ${balance}, který jste zadali. Částku můžete přepsat.`,
+    amountMax: 'Víc, než stojí celá cesta, z benefitů zaplatit nejde.',
+    topUpTitle: (amount: string) => `Doplatek ${amount}`,
+    topUpHint: 'Zbytek doplatíte jinak než benefity.',
+    methods: [
+      { id: 'card', name: 'Platební karta', hint: 'Zaplatíte hned po odeslání objednávky.' },
+      {
+        id: 'transfer',
+        name: 'Bankovní převod',
+        hint: 'Bez poplatku. Objednávku je potřeba zaplatit do 7 dnů.',
+      },
+    ] satisfies { id: PayMethod; name: string; hint: string }[],
+    covered: 'Zaplatíte celé z benefitů',
+    leftOver: (amount: string) => `Na benefitech vám zbude ${amount}.`,
+    voucher: 'Mám dárkový poukaz',
+    voucherLabel: 'Kód poukazu',
+    voucherApply: 'Uplatnit',
+    voucherNote: 'V prototypu poukaz uplatnit nejde.',
+  },
+  consents: {
+    title: 'Souhlasy',
+    terms: 'Souhlasím s obchodními a storno podmínkami.',
+    docs: 'Dokumenty k doplňkům',
+    insuranceDocs: ['Pojistné podmínky', 'Informační dokument o pojištění'],
+    carDocs: ['Podmínky půjčovny'],
+    docNote: 'V prototypu dokumenty nejsou. Ve skutečném webu by je dodal partner.',
+    marketing: 'Chci dostávat tipy na cesty a připomínku, když mi budou propadat benefity.',
+  },
+  next: {
+    title: 'Co bude dál',
+    stay: 'Potvrzení objednávky přijde e-mailem hned po zaplacení.',
+    insurance: 'Pojistnou smlouvu vám pošle pojišťovna e-mailem.',
+    car: 'Voucher na auto najdete v detailu objednávky. Při převzetí půjčovna zablokuje kauci na kreditní kartě řidiče.',
+  },
+  pay: (amount: string) => `Zaplatit ${amount}`,
+  payTransfer: 'Objednat a zaplatit převodem',
+  errors: {
+    required: 'Vyplňte prosím toto pole.',
+    email: 'Zkontrolujte e-mail. Chybí v něm zavináč nebo doména.',
+    birth: 'Zadejte datum ve tvaru 1. 5. 1990.',
+    program: 'Vyberte benefitní program, nebo nastavte částku z benefitů na nulu.',
+    age: 'Potvrďte prosím věk řidiče.',
+    terms: 'Bez souhlasu s podmínkami objednávku dokončit nejde.',
+    summary: (n: number) =>
+      `Ve formuláři ${n >= 2 && n <= 4 ? 'jsou' : 'je'} ${plural(n, 'chyba', 'chyby', 'chyb')}. Přesunuli jsme vás k první.`,
+  },
+  done: {
+    title: 'Hotovo, cesta je objednaná',
+    demo: 'Ukázka končí. Nic se neobjednalo ani nezaplatilo.',
+    orderLabel: 'Číslo objednávky',
+    order: 'DZB 2026 04821',
+    docsTitle: 'Co vám přijde',
+    docs: {
+      stay: 'Potvrzení pobytu e-mailem',
+      insurance: 'Pojistná smlouva od pojišťovny',
+      car: 'Voucher na auto v detailu objednávky',
+    },
+    paidTitle: 'Jak jste platili',
+    paidBenefits: 'Z benefitů',
+    paidCard: 'Kartou',
+    paidTransfer: 'Převodem, do 7 dnů',
+    left: 'Na benefitech zbývá',
+    upsellInsurance: 'Ještě nemáte cestovní pojištění',
+    upsellInsuranceText: (tier: string, price: string) =>
+      `Varianta ${tier} za ${price} na celou cestu. Zaplatíte benefity.`,
+    upsellCar: 'Budete na místě potřebovat auto?',
+    upsellCarText: (name: string, price: string, days: number) =>
+      `${name} za ${price} na ${days} dní. Zaplatíte benefity.`,
+    upsellAdd: 'Přidat k objednávce',
+    upsellAdded: 'Přidáno. Ve skutečném webu jde o samostatnou platbu s vlastním potvrzením.',
+    restart: 'Projít prototyp znovu',
+    study: 'Zpět na případovou studii',
+  },
+}
+
+// Dobré vědět před cestou (bod 1.10). Obsah je ilustrativní, podmínky by vznikly s partnery.
 export const goodToKnow = {
   title: 'Dobré vědět před cestou',
   lead: 'Krátké odpovědi k pojištění a autu, ať víte, co přidat a na co se připravit.',
@@ -612,7 +751,7 @@ export const goodToKnow = {
   ],
 }
 
-// Interaktivní průvodce (zjištění 1.5). Kroky rezervace vycházejí z dnešní stránky Jak to funguje.
+// Interaktivní průvodce (zjištění 1.11). Kroky rezervace vycházejí z dnešní stránky Jak to funguje.
 export type GuidePath = 'web' | 'extension' | 'addons'
 export const guide = {
   title: 'Jak to funguje',
@@ -769,9 +908,10 @@ export const guide = {
   }[],
 }
 
-// Sekce Vybíráte na Booking.com? (zjištění 1.1 D a kapitola 3).
+// Sekce Vybíráte na Booking.com? (zjištění 1.12 a kapitola 7).
 export const bookingSection = {
-  title: 'Vybíráte na Booking.com?',
+  // Za nadpis se vloží logo Booking.com.
+  title: 'Vybíráte na',
   lead: 'Klidně vybírejte tam, kde jste zvyklí. Zaplatit můžete u nás benefity.',
   extension: {
     badge: 'Novinka',
@@ -800,7 +940,7 @@ export const bookingSection = {
   },
 }
 
-// Blok pro HR (zjištění 1.8 e). Vede na samostatný web pro firmy.
+// Blok pro HR (zjištění 1.14). Vede na samostatný web pro firmy.
 export const hrBlock = {
   eyebrow: 'Pro firmy a HR',
   title: 'Nabídněte zaměstnancům celou dovolenou za benefity',
@@ -808,7 +948,7 @@ export const hrBlock = {
   cta: 'Web pro firmy',
 }
 
-// FAQ (zjištění 1.7). Obecné a Platba vycházejí z dnešní stránky Jak to funguje,
+// FAQ (zjištění 1.13). Obecné a Platba vycházejí z dnešní stránky Jak to funguje,
 // Auto a Pojištění jsou ukázkové odpovědi k návrhu nových kategorií.
 export const faq = {
   title: 'Časté dotazy',
@@ -903,64 +1043,124 @@ export const notes = {
   source: 'Vychází z analýzy',
   items: {
     stepper: {
-      source: 'Objednávka, bod 4.7',
+      source: 'Košík, bod 3.7',
       title: 'Ukazatel kroků',
       text: 'Dnes člověk při objednávce neví, v jakém kroku je ani kolik jich zbývá. Čtyři kroky ukazují, že doplňky jsou jen krátká zastávka před košíkem.',
     },
     addonsStep: {
-      source: 'Prototyp, kapitola 8.8 a test 4',
+      source: 'Nabídka doplňků, bod 2.1 a test 3',
       title: 'Doplňky jako samostatný krok',
       text: 'Nabídka přichází hned po výběru ubytování, kdy člověk řeší cestu jako celek. Je to varianta A testu 4. Proti ní se měří zkrácená nabídka v košíku.',
     },
     staySummary: {
-      source: 'Výsledky a objednávka, body 2.1 a 4.1',
+      source: 'Košík, bod 3.1 a příloha A.1',
       title: 'Cena včetně poplatku',
-      text: 'Prototyp přeskakuje výsledky a detail hotelu, jejich zjištění jsou v kapitole 4B. Cena pobytu je včetně servisního poplatku, aby se na konci nic nepřičítalo.',
+      text: 'Prototyp přeskakuje výsledky a detail hotelu, jejich zjištění jsou v příloze A. Cena pobytu je včetně servisního poplatku, aby se na konci nic nepřičítalo.',
     },
     payable: {
-      source: 'Nové kategorie, kapitola 7',
+      source: 'Odpověď ve zkratce, klíčová otázka',
       title: 'Předpoklad, že doplňky jdou platit benefity',
       text: 'Jestli jde doplňky zaplatit benefity, je klíčová otevřená otázka. Prototyp s tím počítá, protože na tom celá nabídka stojí. Ověřil bych to jako první.',
     },
     insuranceTiers: {
-      source: 'Prototyp, kapitola 8.8',
+      source: 'Nabídka doplňků, bod 2.3',
       title: 'Nic není předem vybrané',
       text: 'Tři varianty a vedle nich Bez pojištění. Ceny jsou za celou cestu pro všechny osoby, aby byl hned vidět dopad na benefity. Předem zaškrtnutý doplněk by byl manipulativní.',
     },
     recommendation: {
-      source: 'Prototyp, kapitola 8.4',
+      source: 'Úvodní stránka, bod 1.8',
       title: 'Doporučení podle místa',
       text: 'Doporučení se řídí destinací a jedna věta říká proč. U zahraničí je to Standard, u Česka pojištění nedoporučuji, ve městě je auto sbalené.',
     },
     stornoHint: {
-      source: 'Detail hotelu, bod 3.3',
+      source: 'Výsledky a detail, bod A.5',
       title: 'Storno u nevratného pobytu',
       text: 'Hypotéza na test. U nevratné sazby připomenu, že varianta Plus kryje storno pobytu. Cena flexibility je pak vidět na jednom místě.',
     },
     deposit: {
-      source: 'Prototyp, kapitola 8.8',
+      source: 'Nabídka doplňků, bod 2.4',
       title: 'Kauce u auta',
       text: 'Půjčovny obvykle blokují kauci na kreditní kartě řidiče. Benefity ji nepokryjí, protože nejde o platbu. Říkám to dřív, než to člověk zjistí na místě.',
     },
     offerSummary: {
-      source: 'Prototyp, kapitola 8.8',
+      source: 'Nabídka doplňků, bod 2.5',
       title: 'Souhrn s benefity',
       text: 'Stejný pruh pokrytí jako v trip builderu. Po každé volbě je hned vidět, jestli se cesta vejde do benefitů a kolik případně doplatíte.',
     },
     skip: {
-      source: 'Plán A/B testů, test 4',
+      source: 'Nabídka doplňků, bod 2.5 a test 3',
       title: 'Přeskočit jde stejně snadno',
       text: 'Pokračovat bez doplňků je stejně velké tlačítko, ne schovaný šedý odkaz. Ochranná metrika testu 4 je konverze samotného ubytování.',
     },
+    confirmationOffer: {
+      source: 'Košík, potvrzení',
+      title: 'Nabídka až po zaplacení',
+      text: 'Doplněk, který člověk nevybral, nabídnu až po zaplacení. Je to místo s nejmenším rizikem pro konverzi ubytování, protože objednávka je už hotová.',
+    },
+    cartRecap: {
+      source: 'Košík, bod 3.1',
+      title: 'Poplatek jako samostatný řádek',
+      text: 'Dnes se servisní poplatek poprvé objeví až v rekapitulaci. V prototypu je v ceně pobytu už na obrazovce 2 a tady má vlastní řádek, aby bylo vidět, z čeho se cena skládá.',
+    },
+    fee: {
+      source: 'Košík, bod 3.6',
+      title: 'Poplatek podle programu',
+      text: 'Místo věty „Cenu může ovlivnit způsob platby“ bez vysvětlení. Podle FAQ se poplatek liší podle programu a převod je bez poplatku. V prototypu se nemění, ve skutečném webu by se přepočítal po výběru programu.',
+    },
+    removeAddon: {
+      source: 'Košík, návrh obrazovky',
+      title: 'Odebrat jde jedním klikem',
+      text: 'Doplněk jde v košíku odebrat a odebrání vrátit. Kdo si ho přidal omylem, nemusí se vracet o krok zpět.',
+    },
+    contact: {
+      source: 'Košík, bod 3.5',
+      title: 'Jen nutné údaje',
+      text: 'Dnes je povinná celá adresa i telefon a uprostřed formuláře je velké pole pro poznámku. Tady je adresa sbalená pro ty, kdo chtějí fakturu, a poznámka je odkaz. Jestli adresu nepotřebuje partner, bych ověřil.',
+    },
+    addonFields: {
+      source: 'Košík, návrh obrazovky',
+      title: 'Údaje jen pro vybrané doplňky',
+      text: 'Pojišťovna potřebuje jména a data narození, půjčovna jméno řidiče. Pole se ukážou, jen když je doplněk v košíku. Na obrazovce 2 by zdržovala i ty, kdo nic nepřidají.',
+    },
+    cartOffer: {
+      source: 'Jak bych to ověřil, test 3',
+      title: 'Varianta B, nabídka v košíku',
+      text: 'Bez kroku navíc. Doporučené pojištění a auto jdou přidat jedním tlačítkem přímo v košíku. Proti samostatnému kroku z varianty A se měří výnos z doplňků a konverze ubytování.',
+    },
+    programs: {
+      source: 'Košík, bod 3.2',
+      title: 'Programy jako dlaždice',
+      text: 'Dnes je program v rozbalovacím seznamu a předvybraný je Edenred. Dlaždice ukážou všechny programy najednou a žádný není předvybraný.',
+    },
+    benefitsAmount: {
+      source: 'Košík, bod 3.2',
+      title: 'Částka předvyplněná, doplatek dopočítaný',
+      text: 'Dnes musí člověk zapnout druhou platbu nenápadným odkazem, částku napsat sám a znát k tomu zůstatek. Tady je částka předvyplněná, doplatek se dopočítá a druhá metoda je karta, ne znovu stejný program.',
+    },
+    consents: {
+      source: 'Košík, bod 3.4',
+      title: 'Marketing není zaškrtnutý',
+      text: 'Předem zaškrtnutý souhlas podle GDPR není platný a těsně před platbou snižuje důvěru. Povinný je jen jeden souhlas s podmínkami.',
+    },
+    whatNext: {
+      source: 'Košík, bod 3.7',
+      title: 'Co bude dál',
+      text: 'Člověk ví, co se stane po kliknutí a jaké doklady mu přijdou. U auta ještě jednou připomene kauci.',
+    },
+    payButton: {
+      source: 'Košík, bod 3.3',
+      title: 'Tlačítko na konci formuláře',
+      text: 'Dnes je na desktopu tlačítko jen v pravém panelu nahoře a pod souhlasy chybí. Tady je na konci formuláře i v rekapitulaci a ukazuje částku.',
+    },
     headline: {
       source: 'Úvodní stránka, bod 1.3',
-      title: 'Benefity na prvním místě',
-      text: 'Nadpis mluví o tom, co člověk získá, a hned ukazuje podporované programy. Dnešní nadpis zdůrazňuje Booking. Přesné znění bych ověřil A/B testem.',
+      title: 'Benefity jako hlavní sdělení',
+      text: 'Dnešní nadpis zdůrazňuje Booking a programy jsou jen jako loga níž na stránce. Hlavní výhoda je, že člověk platí benefity, ne vlastními penězi. Proto je to nadpis a hned pod ním loga programů, které web přijímá. Přesné znění bych ověřil A/B testem.',
     },
-    tabs: {
-      source: 'Nové kategorie, kapitola 7',
-      title: 'Nové kategorie',
-      text: 'Záložky ukazují, že web nabízí celou cestu. Ve variantách A i B jsou stejné, aby nezkreslily test vyhledávání.',
+    season: {
+      source: 'Úvodní stránka, bod 1.6',
+      title: 'Úvodní stránka podle sezóny',
+      text: 'Ilustrace a doporučení by se měnily podle toho, co lidé v daném období nejčastěji kupují. V zimě hory, v létě moře. O motivu bych rozhodoval podle rezervací z minulých let, ne podle kalendáře. V prototypu je letní varianta.',
     },
     searchNew: {
       source: 'Úvodní stránka, bod 1.1',
@@ -993,12 +1193,12 @@ export const notes = {
       text: 'Měsíce jdou pod sebou a počet nocí je přímo na tlačítku Potvrdit.',
     },
     recent: {
-      source: 'Úvodní stránka, bod 1.11',
+      source: 'Úvodní stránka, bod 1.5',
       title: 'Nedávné hledání',
       text: 'Poslední hledání se nabídne znovu. Ukládá se jen v prohlížeči a po sedmi dnech zmizí.',
     },
     sticky: {
-      source: 'Úvodní stránka, bod 1.9',
+      source: 'Úvodní stránka, bod 1.5',
       title: 'Hledání vždy po ruce',
       text: 'Když vyhledávání odjede z obrazovky, připne se nahoru. Na desktopu jde o celé hledání v jednom řádku, takže se dá hledat kdykoliv bez posouvání. Na mobilu je to zkrácený řádek, který vrátí k hledání.',
     },
@@ -1008,52 +1208,52 @@ export const notes = {
       text: 'Na desktopu jsou všechna pole v jednom řádku, stejně jako u většiny konkurentů. Lidé ten vzor znají. Je to ale hypotéza, kterou bych ověřil dalším testem.',
     },
     addons: {
-      source: 'Nové kategorie, kapitola 7',
-      title: 'Doplňky hned na začátku',
-      text: 'Pojištění a auto jsou vidět už v první obrazovce i s orientační cenou. Člověk ví, že benefity zaplatí celou cestu, ještě než začne hledat. Klik přepne vyhledávání na danou kategorii.',
+      source: 'Úvodní stránka, bod 1.7',
+      title: 'Doplňky vidět, ale ne ve vyhledávání',
+      text: 'Hlavní produkt je ubytování, proto hledání nabízí jen ubytování a člověk nemusí nic volit. Pojištění a auto jsou vidět vedle hledání s orientační cenou a nabídnou se po výběru pobytu. Klik vede na stránku kategorie pro ty, kdo je chtějí koupit zvlášť.',
     },
     destinations: {
-      source: 'Nové kategorie, kapitola 7',
+      source: 'Úvodní stránka, bod 1.8',
       title: 'Doplněk podle místa',
       text: 'Štítek doporučí doplněk, který k místu dává smysl. Na horách auto, v zahraničí pojištění, ve městě nic. Na další obrazovce bude doplněk zvýrazněný, ale nezaškrtnutý, protože předem zaškrtnutá volba by byla manipulativní.',
     },
     tripBuilder: {
-      source: 'Nové kategorie, kapitola 7',
+      source: 'Úvodní stránka, bod 1.9',
       title: 'Celá cesta na jednom místě',
       text: 'Ukazuje vizi produktu. Celá cesta, jedna platba benefity, vyšší tržba na zákazníka. Zároveň člověka naučí, že benefity pokryjí i auto a pojištění.',
     },
     coverage: {
-      source: 'Úvodní stránka, bod 1.3',
+      source: 'Úvodní stránka, bod 1.9',
       title: 'Kolik pokryjí benefity',
       text: 'Lidé přemýšlejí v tom, kolik mají na benefitech. Pruh hned ukáže, jestli zaplatí všechno z benefitů, nebo kolik doplatí.',
     },
     goodToKnow: {
-      source: 'Nové kategorie, kapitola 7',
+      source: 'Úvodní stránka, bod 1.10',
       title: 'Praktické info místo článků',
       text: 'Krátké odpovědi na otázky, které lidi u auta a pojištění zastaví. Hlavně kauce na kreditní kartě, kterou benefity nepokryjí. Musí být řečená předem, ne až u přepážky.',
     },
     guide: {
-      source: 'Úvodní stránka, bod 1.5',
+      source: 'Úvodní stránka, bod 1.11',
       title: 'Průvodce místo dlouhého návodu',
       text: 'Dnešní návod má šest kroků s dlouhými texty. Tady má každý krok jednu větu a ukázku, podrobnosti jsou schované pod odkazem. Kroky si člověk spouští sám a zůstává na stránce. Text je normálně v HTML, takže ho přečtou i vyhledávače.',
     },
     booking: {
-      source: 'Úvodní stránka, bod 1.1',
+      source: 'Úvodní stránka, bod 1.12',
       title: 'Booking.com bez kopírování',
       text: 'Hlavní cestou je rozšíření do prohlížeče s tlačítkem přímo na Booking.com. Vložení odkazu zůstává jako druhá možnost. Rozšíření je návrh, nejdřív bych ověřil smluvní podmínky s Booking.com.',
     },
     hr: {
-      source: 'Úvodní stránka, bod 1.8',
+      source: 'Úvodní stránka, bod 1.14',
       title: 'Blok pro HR',
       text: 'HR hledá slovo benefity, takže na web může přijít i ono. Blok i odkaz Pro firmy vedou na samostatný web pro firmy, ne na novou podstránku.',
     },
     faq: {
-      source: 'Úvodní stránka, bod 1.7',
+      source: 'Úvodní stránka, bod 1.13',
       title: 'Časté dotazy na konci',
       text: 'Kdo dojde až na konec stránky, ještě něco řeší. Pár nejčastějších otázek s kategoriemi mu pomůže rozhodnout se. Odpovědi umí použít i chat.',
     },
     chat: {
-      source: 'Úvodní stránka, bod 1.10',
+      source: 'Úvodní stránka, bod 1.15',
       title: 'Chat s asistentem',
       text: 'AI asistent odpovídá z častých dotazů a složitější věci předá člověku. Mimo provozní dobu řekne, kdy přijde odpověď. Dotazy jsou zároveň zdroj podnětů pro další úpravy.',
     },

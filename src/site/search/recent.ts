@@ -1,9 +1,7 @@
-// Nedávné hledání (zjištění 1.11). Ukládá se jen v prohlížeči a po sedmi dnech zmizí.
-import type { SearchTab } from '../../content-prototyp'
+// Nedávné hledání (zjištění 1.5). Ukládá se jen v prohlížeči a po sedmi dnech zmizí.
 import { fromIsoDate, startOfDay } from './dates'
 
 export type RecentSearch = {
-  tab: SearchTab
   destination: string
   start: string | null
   end: string | null
