@@ -25,7 +25,7 @@ function StepDetails({ children }: { children: string }) {
 }
 
 /**
- * Interaktivní průvodce místo dlouhého návodu (zjištění 1.5). Tři cesty, kroky si člověk
+ * Interaktivní průvodce místo dlouhého návodu (zjištění 1.11). Tři cesty, kroky si člověk
  * spouští sám tlačítky nebo swipem a zůstává v sekci. Všechny texty jsou v HTML.
  */
 export function Guide() {

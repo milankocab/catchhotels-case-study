@@ -366,7 +366,7 @@ function screen(path: GuidePath, step: number): ReactNode {
 }
 
 /**
- * Ukázka rozhraní nakreslená v HTML a CSS pro jeden krok průvodce (zjištění 1.5).
+ * Ukázka rozhraní nakreslená v HTML a CSS pro jeden krok průvodce (zjištění 1.11).
  * Je jen ilustrační, proto je pro čtečky skrytá. Obsah kroku je v textu vedle.
  */
 export function GuideScreen({ path, step }: { path: GuidePath; step: number }) {

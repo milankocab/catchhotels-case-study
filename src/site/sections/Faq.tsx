@@ -5,7 +5,7 @@ import { Disclosure } from '../components/Disclosure'
 import { Note } from '../components/Note'
 import { usePrototype } from '../state'
 
-/** Časté dotazy s kategoriemi (zjištění 1.7). */
+/** Časté dotazy s kategoriemi (zjištění 1.13). */
 export function Faq() {
   const { notify } = usePrototype()
   const [categoryId, setCategoryId] = useState(faq.categories[0].id)

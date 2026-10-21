@@ -7,7 +7,7 @@ import { usePrototype } from '../state'
 
 const ICONS = { insurance: ShieldCheck, car: CarFront } as const
 
-/** Dobré vědět před cestou (kapitola 8.6). Praktické odpovědi k pojištění a autu. */
+/** Dobré vědět před cestou (bod 1.10). Praktické odpovědi k pojištění a autu. */
 export function GoodToKnow() {
   const { notify } = usePrototype()
   return (

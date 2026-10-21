@@ -3,7 +3,7 @@ import { hrBlock, placeholder } from '../../content-prototyp'
 import { Note } from '../components/Note'
 import { usePrototype } from '../state'
 
-/** Blok pro HR (zjištění 1.8 e). Vede na samostatný web pro firmy. */
+/** Blok pro HR (zjištění 1.14). Vede na samostatný web pro firmy. */
 export function HrBlock() {
   const { notify } = usePrototype()
   return (

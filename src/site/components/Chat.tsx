@@ -9,7 +9,7 @@ import { Note } from './Note'
 type Message = { from: 'bot' | 'me'; text: string }
 
 /**
- * Ukázka chatu vpravo dole (zjištění 1.10). Odpovědi na časté dotazy jsou předpřipravené,
+ * Ukázka chatu vpravo dole (zjištění 1.15). Odpovědi na časté dotazy jsou předpřipravené,
  * vlastní dotaz jen ukáže, co by se stalo na skutečném webu.
  */
 export function Chat() {

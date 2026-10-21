@@ -7,7 +7,7 @@ import { DESTINATION_STAY } from '../trip/offer'
 import { useTrip } from '../trip/state'
 const TAG_ICONS = { car: CarFront, insurance: ShieldCheck } as const
 
-/** Oblíbené destinace se štítkem doporučeného doplňku (kapitola 8.4). */
+/** Oblíbené destinace se štítkem doporučeného doplňku (bod 1.8). */
 export function Destinations() {
   const { startTrip } = useTrip()
   return (

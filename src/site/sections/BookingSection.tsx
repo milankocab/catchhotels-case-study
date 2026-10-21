@@ -1,12 +1,13 @@
 import type { CSSProperties } from 'react'
 import { Check, Link2, PlayCircle, Puzzle } from 'lucide-react'
 import { bookingSection as copy } from '../../content-prototyp'
+import { BookingLogo } from '../components/BrandLogos'
 import { Note } from '../components/Note'
 import { GUIDE_EVENT, LINK_EVENT, usePrototype } from '../state'
 import { GuideScreen } from './GuideScreen'
 
 /**
- * Vybíráte na Booking.com? (zjištění 1.1 D a kapitola 3). Hlavní cestou je rozšíření
+ * Vybíráte na Booking.com? (zjištění 1.12 a kapitola 7). Hlavní cestou je rozšíření
  * do prohlížeče, vložení odkazu zůstává jako druhá možnost.
  */
 export function BookingSection() {
@@ -16,7 +17,7 @@ export function BookingSection() {
       <div className="mx-auto max-w-6xl" data-reveal>
         <div className="flex items-center gap-2">
           <h2 id="booking-nadpis" className="text-2xl font-bold sm:text-3xl">
-            {copy.title}
+            {copy.title} <BookingLogo className="h-6 translate-y-0.5 sm:h-7" />?
           </h2>
           <Note id="booking" />
         </div>
